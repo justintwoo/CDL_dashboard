@@ -253,18 +253,19 @@ def scrape_live_data(start_date: Optional[str] = None) -> Optional[pd.DataFrame]
                     continue
                 
                 matches = page_props['allMatches']
-                print(f"✅ Found {len(matches)} matches in database")
+                print(f"✅ Found {len(matches)} total matches in database")
                 
-                # Filter to completed matches with scores from the specified date
+                # Filter to completed CDL matches with scores from the specified date
                 completed = [m for m in matches 
                             if m.get('team1') and m.get('team2') 
                             and m.get('status') == 'complete'
                             and m.get('team_1_score') is not None
                             and m.get('team_2_score') is not None
                             and m.get('datetime')
-                            and m.get('datetime', '')[:10] >= date_threshold]
+                            and m.get('datetime', '')[:10] >= date_threshold
+                            and m.get('event') and m.get('event', {}).get('league') == 'CDL']
                 
-                print(f"✅ Found {len(completed)} completed matches with scores (since {date_threshold})")
+                print(f"✅ Found {len(completed)} completed CDL matches with scores (since {date_threshold})")
                 
                 if not completed:
                     print("⚠️ No completed matches found")
