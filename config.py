@@ -11,10 +11,17 @@ import os
 
 # Cloud database URL (set via environment variable for Streamlit Cloud / GitHub Actions)
 # For local development, falls back to localhost PostgreSQL
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://justinwoo@localhost:5432/cdl_stats"
-)
+def get_database_url():
+    """Get database URL from Streamlit secrets or environment variable."""
+    try:
+        import streamlit as st
+        # Try to get from Streamlit secrets first (for Streamlit Cloud)
+        return st.secrets.get("DATABASE_URL", os.getenv("DATABASE_URL", "postgresql://justinwoo@localhost:5432/cdl_stats"))
+    except (ImportError, FileNotFoundError, AttributeError):
+        # Fall back to environment variable (for local development)
+        return os.getenv("DATABASE_URL", "postgresql://justinwoo@localhost:5432/cdl_stats")
+
+DATABASE_URL = get_database_url()
 
 # ============================================================================
 # COLUMN MAPPING
