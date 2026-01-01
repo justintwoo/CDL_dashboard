@@ -1630,19 +1630,21 @@ def main():
             st.metric("Unique Players", st.session_state.df['player_name'].nunique())
         
         st.divider()
-    
-        "👤 Player Overview": page_player_overview,
-        "🗺️ Map/Mode Breakdown": page_map_mode_breakdown,
-        "⚔️ Head-to-Head": page_vs_opponents,
-    }
-    
-    selected_page = st.sidebar.radio(
-        "📍 Navigation",
-        list(pages.keys()),
-    )
-    
-    # Display selected page
-    pages[selected_page]()
+        
+        # Page navigation
+        pages = {
+            "👤 Player Overview": page_player_overview,
+            "🗺️ Map/Mode Breakdown": page_map_mode_breakdown,
+            "⚔️ Head-to-Head": page_vs_opponents,
+        }
+        
+        selected_page = st.sidebar.radio(
+            "📍 Navigation",
+            list(pages.keys()),
+        )
+        
+        # Display selected page
+        pages[selected_page]()
     
     # Footer
     st.divider()
