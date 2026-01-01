@@ -760,10 +760,11 @@ def page_map_mode_breakdown():
     with col5:
         st.metric("Avg Damage", f"{analysis_df['damage'].mean():.0f}")
     
-    # Average kills by map and position
+    # Average kills by map (aggregated across selected positions)
     st.markdown("### 🗺️ Average Kills by Map")
     
-    map_position_stats = analysis_df.groupby(['map_name', 'position']).agg({
+    # Group by map only - combining all selected positions
+    map_stats = analysis_df.groupby('map_name').agg({
         'kills': 'mean',
         'deaths': 'mean',
         'damage': 'mean',
@@ -772,17 +773,20 @@ def page_map_mode_breakdown():
         'won_map': lambda x: (x == True).sum() / len(x) * 100 if len(x) > 0 else 0
     }).reset_index()
     
-    map_position_stats.columns = ['Map', 'Position', 'Avg Kills', 'Avg Deaths', 'Avg Damage', 'Avg Rating', 'Maps Played', 'Win %']
-    map_position_stats['K/D'] = map_position_stats['Avg Kills'] / map_position_stats['Avg Deaths'].replace(0, 1)
+    map_stats.columns = ['Map', 'Avg Kills', 'Avg Deaths', 'Avg Damage', 'Avg Rating', 'Maps Played', 'Win %']
+    map_stats['K/D'] = map_stats['Avg Kills'] / map_stats['Avg Deaths'].replace(0, 1)
+    
+    # Display selected positions info
+    positions_text = ", ".join(selected_positions)
+    st.caption(f"Showing combined averages for: **{positions_text}**")
     
     # Display as table
     st.dataframe(
-        map_position_stats.round(2),
+        map_stats.round(2),
         use_container_width=True,
         hide_index=True,
         column_config={
             'Map': st.column_config.TextColumn('Map', width='medium'),
-            'Position': st.column_config.TextColumn('Position', width='small'),
             'Avg Kills': st.column_config.NumberColumn('Avg Kills', format='%.2f'),
             'Avg Deaths': st.column_config.NumberColumn('Avg Deaths', format='%.2f'),
             'K/D': st.column_config.NumberColumn('K/D', format='%.2f'),
@@ -796,15 +800,15 @@ def page_map_mode_breakdown():
     # Visualizations
     st.markdown("### 📈 Visual Breakdown")
     
-    # Bar chart: Average Kills by Map and Position
+    # Bar chart: Average Kills by Map
     fig_kills = px.bar(
-        map_position_stats,
+        map_stats,
         x='Map',
         y='Avg Kills',
-        color='Position',
-        barmode='group',
-        title='Average Kills by Map and Position',
+        title=f'Average Kills by Map ({positions_text})',
         labels={'Avg Kills': 'Average Kills', 'Map': 'Map'},
+        color='Avg Kills',
+        color_continuous_scale='Blues',
         hover_data=['K/D', 'Avg Rating', 'Maps Played']
     )
     fig_kills.update_layout(height=500, xaxis_tickangle=-45)
@@ -814,35 +818,31 @@ def page_map_mode_breakdown():
     col1, col2 = st.columns(2)
     
     with col1:
-        # K/D by Position across all maps
-        position_stats = analysis_df.groupby('position').agg({
-            'kills': 'mean',
-            'deaths': 'mean',
-        }).reset_index()
-        position_stats['K/D'] = position_stats['kills'] / position_stats['deaths']
-        
+        # K/D by Map
         fig_kd = px.bar(
-            position_stats,
-            x='position',
+            map_stats,
+            x='Map',
             y='K/D',
-            color='position',
-            title='Average K/D by Position',
-            labels={'position': 'Position', 'K/D': 'K/D Ratio'}
+            title='K/D Ratio by Map',
+            labels={'Map': 'Map', 'K/D': 'K/D Ratio'},
+            color='K/D',
+            color_continuous_scale='RdYlGn'
         )
-        fig_kd.update_layout(height=400, showlegend=False)
+        fig_kd.update_layout(height=400, xaxis_tickangle=-45)
         st.plotly_chart(fig_kd, use_container_width=True)
     
     with col2:
-        # Damage by Position
+        # Damage by Map
         fig_damage = px.bar(
-            analysis_df.groupby('position')['damage'].mean().reset_index(),
-            x='position',
-            y='damage',
-            color='position',
-            title='Average Damage by Position',
-            labels={'position': 'Position', 'damage': 'Average Damage'}
+            map_stats,
+            x='Map',
+            y='Avg Damage',
+            title='Average Damage by Map',
+            labels={'Map': 'Map', 'Avg Damage': 'Average Damage'},
+            color='Avg Damage',
+            color_continuous_scale='Reds'
         )
-        fig_damage.update_layout(height=400, showlegend=False)
+        fig_damage.update_layout(height=400, xaxis_tickangle=-45)
         st.plotly_chart(fig_damage, use_container_width=True)
 
 
