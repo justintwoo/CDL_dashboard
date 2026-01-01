@@ -1,0 +1,281 @@
+match_id,date,event_name,series_type,is_lan,season,team_name,opponent_team_name,player_name,mode,map_name,map_number,kills,deaths,assists,damage,hill_time,plants,defuses,rating,won_map
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,aBeZy,Hardpoint,Exposure,1,25,25,6,3493,62.0,0,0,0.66,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,HyDra,Hardpoint,Exposure,1,26,32,7,3333,28.0,0,0,0.45,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,Kenny,Hardpoint,Exposure,1,24,27,4,2826,35.0,0,0,0.58,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,Scrap,Hardpoint,Exposure,1,20,29,4,2756,29.0,0,0,0.44,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Ghosty,Hardpoint,Exposure,1,29,21,7,3126,101.0,0,0,1.54,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Neptune,Hardpoint,Exposure,1,20,27,9,2609,52.0,0,0,1.14,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Sib,Hardpoint,Exposure,1,32,22,15,4075,88.0,0,0,1.62,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Envoy,Hardpoint,Exposure,1,32,25,15,4080,58.0,0,0,1.57,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,aBeZy,Search & Destroy,Colossus,2,6,5,1,745,,0,0,1.21,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,HyDra,Search & Destroy,Colossus,2,6,5,3,813,,1,0,1.21,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Envoy,Search & Destroy,Colossus,2,1,8,0,509,,0,0,0.45,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,Kenny,Search & Destroy,Colossus,2,4,5,4,621,,0,1,1.06,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,Scrap,Search & Destroy,Colossus,2,12,3,1,1118,,0,0,1.75,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Neptune,Search & Destroy,Colossus,2,7,7,1,932,,0,0,0.81,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Sib,Search & Destroy,Colossus,2,5,6,1,586,,0,0,0.79,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Ghosty,Search & Destroy,Colossus,2,5,7,3,993,,2,0,0.72,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,aBeZy,Overload,Exposure,3,22,27,9,2956,,0,0,0.9,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,HyDra,Overload,Exposure,3,27,22,5,3287,,0,0,1.28,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,Kenny,Overload,Exposure,3,21,26,10,2623,,0,0,0.9,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,Scrap,Overload,Exposure,3,20,23,8,2760,,0,0,0.96,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Envoy,Overload,Exposure,3,23,23,11,2991,,0,0,1.12,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Ghosty,Overload,Exposure,3,26,19,8,3050,,0,0,1.47,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Neptune,Overload,Exposure,3,23,23,6,3075,,0,0,1.07,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Sib,Overload,Exposure,3,26,25,9,3133,,0,0,1.13,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,aBeZy,Hardpoint,Blackheart,4,19,23,6,2549,21.0,0,0,0.63,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Envoy,Hardpoint,Blackheart,4,22,22,8,3038,49.0,0,0,1.26,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Ghosty,Hardpoint,Blackheart,4,19,16,11,2762,105.0,0,0,1.3,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Neptune,Hardpoint,Blackheart,4,29,15,9,3063,108.0,0,0,1.7,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,Los Angeles Thieves,Sib,Hardpoint,Blackheart,4,27,15,7,3062,91.0,0,0,1.62,True
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,Kenny,Hardpoint,Blackheart,4,9,27,4,1883,26.0,0,0,0.22,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,Scrap,Hardpoint,Blackheart,4,19,23,6,2666,44.0,0,0,0.63,False
+MATCH_222522,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,Paris Gentle Mates,HyDra,Hardpoint,Blackheart,4,21,24,5,2523,90.0,0,0,0.64,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Dashy,Hardpoint,Den,1,19,19,7,2551,105.0,0,0,1.2,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Huke,Hardpoint,Den,1,21,25,10,2816,61.0,0,0,1.11,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Mercules,Hardpoint,Den,1,33,21,5,4146,95.0,0,0,1.66,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Shotzzy,Hardpoint,Den,1,26,18,8,3408,46.0,0,0,1.48,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,04,Hardpoint,Den,1,24,28,6,2881,41.0,0,0,0.61,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,Abuzah,Hardpoint,Den,1,15,26,12,2824,40.0,0,0,0.44,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,Drazah,Hardpoint,Den,1,19,25,6,2687,38.0,0,0,0.58,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,Simp,Hardpoint,Den,1,25,20,9,3361,76.0,0,0,0.93,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Dashy,Search & Destroy,Den,2,6,7,1,900,,0,0,0.91,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Huke,Search & Destroy,Den,2,6,8,2,846,,1,0,0.84,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Mercules,Search & Destroy,Den,2,5,8,2,1051,,1,0,0.77,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Shotzzy,Search & Destroy,Den,2,12,9,3,1819,,0,1,1.16,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,04,Search & Destroy,Den,2,11,7,3,1409,,0,0,1.32,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,Abuzah,Search & Destroy,Den,2,6,7,2,794,,0,1,0.98,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,Drazah,Search & Destroy,Den,2,9,7,1,1226,,1,0,1.18,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,Simp,Search & Destroy,Den,2,5,8,2,887,,1,0,0.84,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,Simp,Overload,Den,3,23,26,6,3125,,0,0,0.94,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Dashy,Overload,Den,3,23,18,7,3146,,0,0,1.38,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Mercules,Overload,Den,3,25,20,10,3304,,0,0,1.38,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Shotzzy,Overload,Den,3,31,20,3,3205,,0,0,1.59,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,04,Overload,Den,3,14,27,11,2532,,0,0,0.62,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,FaZe Vegas,Huke,Overload,Den,3,17,19,6,2542,,0,0,0.97,True
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,Drazah,Overload,Den,3,17,22,3,2113,,0,0,0.81,False
+MATCH_222521,2025-11-30,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,OpTic Texas,Abuzah,Overload,Den,3,23,21,10,3027,,0,0,1.21,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,aBeZy,Hardpoint,Scar,1,31,34,13,4140,56.0,0,0,1.07,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,HyDra,Hardpoint,Scar,1,35,35,8,3863,21.0,0,0,1.16,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,Kenny,Hardpoint,Scar,1,29,28,15,3545,109.0,0,0,1.15,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,Scrap,Hardpoint,Scar,1,32,29,15,4597,77.0,0,0,1.22,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Drazah,Hardpoint,Scar,1,29,30,12,3892,69.0,0,0,0.84,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Simp,Hardpoint,Scar,1,36,33,51,4759,66.0,0,0,0.92,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Abuzah,Hardpoint,Scar,1,31,31,10,3630,44.0,0,0,0.86,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,04,Hardpoint,Scar,1,30,33,15,3660,37.0,0,0,0.78,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,aBeZy,Search & Destroy,Colossus,2,8,7,2,764,,1,1,1.11,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,HyDra,Search & Destroy,Colossus,2,8,3,2,990,,2,0,1.35,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,Kenny,Search & Destroy,Colossus,2,5,8,3,849,,0,0,0.86,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,Scrap,Search & Destroy,Colossus,2,7,7,2,990,,0,0,1.05,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,04,Search & Destroy,Colossus,2,5,8,1,665,,0,0,0.77,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Abuzah,Search & Destroy,Colossus,2,8,7,2,1045,,0,0,1.01,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Drazah,Search & Destroy,Colossus,2,5,7,2,904,,1,0,0.84,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Simp,Search & Destroy,Colossus,2,7,6,2,954,,0,0,1.02,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,HyDra,Overload,Den,3,23,27,11,2735,,0,0,0.95,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,Kenny,Overload,Den,3,11,27,10,2311,,0,0,0.5,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,Scrap,Overload,Den,3,27,28,11,3572,,0,0,1.06,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,04,Overload,Den,3,27,25,13,2989,,0,0,1.21,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Abuzah,Overload,Den,3,15,24,15,3067,,0,0,0.78,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Drazah,Overload,Den,3,35,22,7,3448,,0,0,1.67,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Simp,Overload,Den,3,30,22,10,3928,,0,0,1.48,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,aBeZy,Overload,Den,3,32,25,6,3668,,0,0,1.34,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,aBeZy,Hardpoint,Den,4,28,23,13,3252,89.0,0,0,1.12,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,HyDra,Hardpoint,Den,4,27,24,12,3141,46.0,0,0,1.05,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,Kenny,Hardpoint,Den,4,27,24,9,3979,76.0,0,0,1.05,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Abuzah,Hardpoint,Den,4,19,25,10,3038,109.0,0,0,0.84,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Drazah,Hardpoint,Den,4,27,28,8,3626,37.0,0,0,1.03,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,Simp,Hardpoint,Den,4,25,26,7,3755,59.0,0,0,1.03,False
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,FaZe Vegas,Scrap,Hardpoint,Den,4,24,25,14,3595,72.0,0,0,0.91,True
+MATCH_222523,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,FaZe Vegas,Los Angeles Thieves,04,Hardpoint,Den,4,24,27,7,3053,68.0,0,0,0.96,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Envoy,Hardpoint,Den,1,27,25,10,3144,63.0,0,0,1.25,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Ghosty,Hardpoint,Den,1,21,22,11,2610,110.0,0,0,1.12,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Neptune,Hardpoint,Den,1,30,23,12,3498,73.0,0,0,1.42,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Sib,Hardpoint,Den,1,22,28,18,3059,56.0,0,0,0.99,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Dashy,Hardpoint,Den,1,26,25,12,3578,71.0,0,0,0.85,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Huke,Hardpoint,Den,1,24,20,8,2551,43.0,0,0,0.97,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Mercules,Hardpoint,Den,1,21,28,11,3009,54.0,0,0,0.59,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Shotzzy,Hardpoint,Den,1,27,27,13,3381,52.0,0,0,0.8,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Envoy,Search & Destroy,Colossus,2,3,7,0,498,,2,0,0.51,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Ghosty,Search & Destroy,Colossus,2,2,6,1,367,,0,0,0.55,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Neptune,Search & Destroy,Colossus,2,2,7,1,454,,0,0,0.46,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Sib,Search & Destroy,Colossus,2,7,6,0,1019,,0,0,0.77,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Dashy,Search & Destroy,Colossus,2,6,3,2,609,,0,0,1.4,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Huke,Search & Destroy,Colossus,2,7,3,3,863,,0,1,1.49,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Mercules,Search & Destroy,Colossus,2,7,3,2,785,,0,1,1.49,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Shotzzy,Search & Destroy,Colossus,2,6,5,3,742,,0,0,1.32,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Huke,Overload,Scar,3,20,25,14,2845,,0,0,0.94,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Mercules,Overload,Scar,3,27,26,9,3576,,0,0,1.12,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Shotzzy,Overload,Scar,3,28,27,11,3066,,0,0,1.14,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Ghosty,Overload,Scar,3,34,22,9,3968,,0,0,1.65,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Neptune,Overload,Scar,3,28,20,6,2996,,0,0,1.48,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Sib,Overload,Scar,3,18,27,13,2839,,0,0,0.79,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Dashy,Overload,Scar,3,23,24,14,3029,,0,0,1.1,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Envoy,Overload,Scar,3,22,29,14,3438,,0,0,0.88,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Envoy,Hardpoint,Colossus,4,14,27,5,2031,36.0,0,0,0.32,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Ghosty,Hardpoint,Colossus,4,17,23,6,2369,43.0,0,0,0.53,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Neptune,Hardpoint,Colossus,4,20,22,4,2480,16.0,0,0,0.64,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Sib,Hardpoint,Colossus,4,14,26,8,2560,33.0,0,0,0.35,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Dashy,Hardpoint,Colossus,4,26,17,11,3114,111.0,0,0,1.58,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Huke,Hardpoint,Colossus,4,25,18,9,2932,35.0,0,0,1.52,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Mercules,Hardpoint,Colossus,4,27,15,5,3262,41.0,0,0,1.66,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Shotzzy,Hardpoint,Colossus,4,20,15,8,2863,132.0,0,0,1.4,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Dashy,Search & Destroy,Den,5,5,7,0,842,,0,0,0.61,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Huke,Search & Destroy,Den,5,3,6,0,412,,2,0,0.62,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Envoy,Search & Destroy,Den,5,5,2,3,717,,1,0,1.34,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Ghosty,Search & Destroy,Den,5,8,1,1,1086,,1,1,1.61,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Neptune,Search & Destroy,Den,5,8,5,1,1033,,0,0,1.47,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Paris Gentle Mates,OpTic Texas,Sib,Search & Destroy,Den,5,5,5,1,662,,0,0,1.23,True
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Mercules,Search & Destroy,Den,5,1,7,0,441,,0,0,0.47,False
+MATCH_222524,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Paris Gentle Mates,Shotzzy,Search & Destroy,Den,5,4,6,1,565,,0,0,0.65,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,aBeZy,Hardpoint,Den,1,22,27,9,3385,58.0,0,0,0.74,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,HyDra,Hardpoint,Den,1,19,27,9,2716,60.0,0,0,0.65,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,Kenny,Hardpoint,Den,1,20,28,11,2660,95.0,0,0,0.64,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,Scrap,Hardpoint,Den,1,39,23,8,4545,68.0,0,0,1.4,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Dashy,Hardpoint,Den,1,27,23,10,3968,62.0,0,0,1.24,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Huke,Hardpoint,Den,1,28,25,9,3705,52.0,0,0,1.21,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Mercules,Hardpoint,Den,1,26,24,14,3801,72.0,0,0,1.17,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Shotzzy,Hardpoint,Den,1,23,28,8,2905,105.0,0,0,0.94,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Shotzzy,Search & Destroy,Colossus,2,4,8,1,828,,0,0,0.71,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,aBeZy,Search & Destroy,Colossus,2,8,7,3,986,,0,0,1.11,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,HyDra,Search & Destroy,Colossus,2,4,7,2,783,,0,0,0.84,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,Kenny,Search & Destroy,Colossus,2,5,8,3,963,,0,0,0.85,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,Scrap,Search & Destroy,Colossus,2,13,5,3,1521,,0,1,1.57,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Dashy,Search & Destroy,Colossus,2,9,8,2,1097,,0,0,1.01,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Huke,Search & Destroy,Colossus,2,8,6,0,944,,2,0,1.08,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Mercules,Search & Destroy,Colossus,2,6,8,1,996,,0,0,0.83,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Mercules,Overload,Den,3,24,17,9,2669,,0,0,1.54,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Shotzzy,Overload,Den,3,18,29,9,2603,,0,0,0.7,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,aBeZy,Overload,Den,3,20,19,5,2599,,0,0,1.12,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,HyDra,Overload,Den,3,27,19,14,3220,,0,0,1.61,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,Kenny,Overload,Den,3,23,22,8,2989,,0,0,1.14,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,Scrap,Overload,Den,3,23,22,10,3049,,0,0,1.16,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Dashy,Overload,Den,3,21,23,13,3117,,0,0,1.05,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Huke,Overload,Den,3,19,24,11,2409,,0,0,0.91,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Mercules,Hardpoint,Scar,4,38,27,8,3834,101.0,0,0,1.44,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Shotzzy,Hardpoint,Scar,4,19,31,16,3239,46.0,0,0,0.78,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,aBeZy,Hardpoint,Scar,4,23,24,11,3269,99.0,0,0,0.87,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,HyDra,Hardpoint,Scar,4,27,34,12,3533,62.0,0,0,0.68,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,Kenny,Hardpoint,Scar,4,28,31,12,3811,27.0,0,0,0.79,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,Los Angeles Thieves,OpTic Texas,Scrap,Hardpoint,Scar,4,31,34,9,3624,30.0,0,0,0.78,False
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Dashy,Hardpoint,Scar,4,33,25,13,4312,126.0,0,0,1.35,True
+MATCH_222525,2025-12-01,Kaysan's Showdown VIII,BO5,True,2026,OpTic Texas,Los Angeles Thieves,Huke,Hardpoint,Scar,4,33,26,7,3896,12.0,0,0,1.32,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Envoy,Hardpoint,Blackheart,1,25,35,14,3784,86.0,0,0,0.72,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Ghosty,Hardpoint,Blackheart,1,35,28,11,4275,86.0,0,0,1.24,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Neptune,Hardpoint,Blackheart,1,20,31,11,2902,107.0,0,0,0.69,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Sib,Hardpoint,Blackheart,1,37,28,13,4253,70.0,0,0,1.3,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Huke,Hardpoint,Blackheart,1,30,25,8,3980,73.0,0,0,1.14,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Dashy,Hardpoint,Blackheart,1,33,30,14,4105,123.0,0,0,1.07,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Mercules,Hardpoint,Blackheart,1,30,31,11,3969,79.0,0,0,0.95,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Shotzzy,Hardpoint,Blackheart,1,29,32,10,3963,98.0,0,0,0.89,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Envoy,Search & Destroy,Scar,2,10,4,0,1028,,1,0,1.53,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Ghosty,Search & Destroy,Scar,2,9,5,2,1223,,1,0,1.39,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Neptune,Search & Destroy,Scar,2,4,7,1,693,,0,0,0.89,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Sib,Search & Destroy,Scar,2,7,7,2,1118,,0,0,1.12,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Dashy,Search & Destroy,Scar,2,2,6,0,200,,0,1,0.66,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Huke,Search & Destroy,Scar,2,6,7,1,597,,1,0,0.82,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Mercules,Search & Destroy,Scar,2,6,9,2,1232,,0,0,0.67,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Shotzzy,Search & Destroy,Scar,2,9,8,1,1083,,0,0,0.92,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Envoy,Overload,Exposure,3,18,22,9,2519,,0,0,0.92,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Ghosty,Overload,Exposure,3,29,17,6,3354,,0,0,1.79,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Neptune,Overload,Exposure,3,28,24,9,3617,,0,0,1.26,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Sib,Overload,Exposure,3,12,26,10,2294,,0,0,0.56,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Dashy,Overload,Exposure,3,26,19,8,3143,,0,0,1.47,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Huke,Overload,Exposure,3,20,22,11,2696,,0,0,1.03,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Mercules,Overload,Exposure,3,25,22,8,3481,,0,0,1.23,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Shotzzy,Overload,Exposure,3,18,24,5,2531,,0,0,0.8,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Envoy,Hardpoint,Colossus,4,30,27,12,3241,85.0,0,0,1.37,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Ghosty,Hardpoint,Colossus,4,24,23,18,3262,120.0,0,0,1.27,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Neptune,Hardpoint,Colossus,4,41,27,15,4373,43.0,0,0,1.68,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Sib,Hardpoint,Colossus,4,33,23,19,3955,74.0,0,0,1.52,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Dashy,Hardpoint,Colossus,4,23,30,11,3714,34.0,0,0,0.56,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Huke,Hardpoint,Colossus,4,31,32,10,3662,53.0,0,0,0.65,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Mercules,Hardpoint,Colossus,4,29,30,9,3656,36.0,0,0,0.67,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Shotzzy,Hardpoint,Colossus,4,17,36,13,2623,28.0,0,0,0.28,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Envoy,Search & Destroy,Den,5,3,4,4,559,,1,1,1.04,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Ghosty,Search & Destroy,Den,5,5,2,1,540,,0,1,1.31,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Neptune,Search & Destroy,Den,5,10,5,1,1106,,0,0,1.56,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,Paris Gentle Mates,OpTic Texas,Sib,Search & Destroy,Den,5,8,5,3,936,,0,0,1.4,True
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Dashy,Search & Destroy,Den,5,4,6,0,0,,0,0,0.7,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Huke,Search & Destroy,Den,5,7,5,0,0,,1,0,0.93,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Mercules,Search & Destroy,Den,5,5,6,0,686,,0,0,0.75,False
+MATCH_222526,2025-12-01,Kaysan's Showdown VIII,BO7,True,2026,OpTic Texas,Paris Gentle Mates,Shotzzy,Search & Destroy,Den,5,0,8,3,389,,0,0,0.33,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Dashy,Hardpoint,Scar,1,24,18,10,3467,106.0,0,0,1.42,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Huke,Hardpoint,Scar,1,19,22,7,2617,17.0,0,0,1.12,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Mercules,Hardpoint,Scar,1,26,18,7,3059,51.0,0,0,1.5,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Shotzzy,Hardpoint,Scar,1,26,23,8,3106,92.0,0,0,1.36,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,Cellium,Hardpoint,Scar,1,26,24,8,3109,10.0,0,0,0.8,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,KiSMET,Hardpoint,Scar,1,20,24,5,2861,46.0,0,0,0.63,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,Pred,Hardpoint,Scar,1,19,23,11,2865,39.0,0,0,0.62,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,Exnid,Hardpoint,Scar,1,17,24,4,2143,73.0,0,0,0.55,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Dashy,Search & Destroy,Den,2,4,6,0,845,,0,0,0.98,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Huke,Search & Destroy,Den,2,6,7,4,1015,,3,0,1.07,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Mercules,Search & Destroy,Den,2,12,4,4,1544,,0,1,1.69,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Shotzzy,Search & Destroy,Den,2,10,6,1,1086,,1,0,1.43,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,Cellium,Search & Destroy,Den,2,5,7,2,911,,0,0,0.74,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,Exnid,Search & Destroy,Den,2,2,9,0,448,,0,0,0.43,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,KiSMET,Search & Destroy,Den,2,6,8,2,951,,2,0,0.72,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,Pred,Search & Destroy,Den,2,10,8,1,1188,,0,2,0.94,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Dashy,Overload,Den,3,18,19,10,2860,,0,0,1.08,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Huke,Overload,Den,3,17,21,9,2498,,0,0,0.92,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Mercules,Overload,Den,3,25,13,14,3484,,0,0,2.19,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,OpTic Texas,Riyadh Falcons,Shotzzy,Overload,Den,3,33,17,5,3318,,0,0,2.01,True
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,Cellium,Overload,Den,3,14,22,7,2458,,0,0,0.72,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,Exnid,Overload,Den,3,18,23,5,2694,,0,0,0.84,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,KiSMET,Overload,Den,3,14,25,5,2119,,0,0,0.61,False
+MATCH_214794,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Riyadh Falcons,OpTic Texas,Pred,Overload,Den,3,23,23,4,3182,,0,0,1.04,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Craze,Hardpoint,Colossus,1,25,23,8,3094,47.0,0,0,0.73,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Lurqxx,Hardpoint,Colossus,1,26,24,7,3198,30.0,0,0,0.72,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Nero,Hardpoint,Colossus,1,21,26,8,3046,85.0,0,0,0.52,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,SlasheR,Hardpoint,Colossus,1,22,24,9,2961,31.0,0,0,0.62,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Cammy,Hardpoint,Colossus,1,30,25,12,3834,96.0,0,0,1.53,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Nastie,Hardpoint,Colossus,1,28,19,9,3405,105.0,0,0,1.6,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Purj,Hardpoint,Colossus,1,18,23,13,2881,66.0,0,0,1.13,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Snoopy,Hardpoint,Colossus,1,21,27,10,2526,86.0,0,0,1.15,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Craze,Search & Destroy,Scar,2,7,9,4,945,,0,0,0.83,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Lurqxx,Search & Destroy,Scar,2,8,8,2,1165,,0,0,0.97,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Nero,Search & Destroy,Scar,2,8,8,1,953,,2,1,0.97,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,SlasheR,Search & Destroy,Scar,2,6,6,1,1306,,0,0,0.97,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Cammy,Search & Destroy,Scar,2,6,6,3,820,,0,0,1.03,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Nastie,Search & Destroy,Scar,2,8,7,3,1269,,0,0,1.1,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Purj,Search & Destroy,Scar,2,7,8,2,1115,,0,0,0.96,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Snoopy,Search & Destroy,Scar,2,10,8,1,1366,,3,0,1.17,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Craze,Overload,Den,3,20,26,7,2458,,0,0,0.84,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Lurqxx,Overload,Den,3,23,26,4,3149,,0,0,0.92,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Nero,Overload,Den,3,25,27,8,3059,,0,0,1.0,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,SlasheR,Overload,Den,3,16,20,7,2557,,0,0,0.89,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Cammy,Overload,Den,3,24,21,10,3166,,0,0,1.26,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Nastie,Overload,Den,3,26,18,7,2948,,0,0,1.54,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Purj,Overload,Den,3,19,25,11,2446,,0,0,0.87,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Snoopy,Overload,Den,3,29,20,7,3266,,0,0,1.54,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Craze,Hardpoint,Exposure,4,29,25,10,3768,44.0,0,0,1.0,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Lurqxx,Hardpoint,Exposure,4,31,28,6,3439,41.0,0,0,0.96,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Purj,Hardpoint,Exposure,4,25,28,8,3239,49.0,0,0,1.03,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Snoopy,Hardpoint,Exposure,4,27,27,6,3245,95.0,0,0,1.13,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,Nero,Hardpoint,Exposure,4,24,25,7,3104,83.0,0,0,0.85,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Carolina Royal Ravens,Boston Breach,SlasheR,Hardpoint,Exposure,4,16,23,12,2374,74.0,0,0,0.67,False
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Cammy,Hardpoint,Exposure,4,23,26,12,3658,73.0,0,0,1.02,True
+MATCH_214795,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Boston Breach,Carolina Royal Ravens,Nastie,Hardpoint,Exposure,4,26,19,7,3076,98.0,0,0,1.34,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,aBeZy,Hardpoint,Den,1,32,21,10,3246,102.0,0,0,1.42,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,HyDra,Hardpoint,Den,1,28,32,10,3576,44.0,0,0,0.96,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,Kenny,Hardpoint,Den,1,28,30,11,3464,42.0,0,0,1.02,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,Scrap,Hardpoint,Den,1,23,26,18,3635,93.0,0,0,0.97,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,04,Hardpoint,Den,1,24,29,10,3166,44.0,0,0,0.77,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,Abuzah,Hardpoint,Den,1,29,25,9,3809,82.0,0,0,1.05,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,Drazah,Hardpoint,Den,1,19,31,12,2289,37.0,0,0,0.55,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,Simp,Hardpoint,Den,1,37,26,8,4409,112.0,0,0,1.26,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,aBeZy,Search & Destroy,Scar,2,8,4,3,1141,,0,0,1.48,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,HyDra,Search & Destroy,Scar,2,8,4,1,882,,2,0,1.48,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,Kenny,Search & Destroy,Scar,2,4,5,3,839,,0,0,1.07,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,Scrap,Search & Destroy,Scar,2,9,6,1,1330,,0,0,1.45,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,04,Search & Destroy,Scar,2,5,7,0,959,,0,0,0.67,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,Abuzah,Search & Destroy,Scar,2,5,6,1,981,,0,0,0.76,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,Drazah,Search & Destroy,Scar,2,4,9,1,791,,0,0,0.43,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,Simp,Search & Destroy,Scar,2,5,7,1,1035,,1,0,0.67,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,aBeZy,Overload,Exposure,3,22,21,11,3209,,0,0,1.18,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,HyDra,Overload,Exposure,3,27,21,8,3160,,0,0,1.38,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,Kenny,Overload,Exposure,3,24,24,4,2906,,0,0,1.04,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,Los Angeles Thieves,FaZe Vegas,Scrap,Overload,Exposure,3,14,24,3,2212,,0,0,0.61,True
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,04,Overload,Exposure,3,18,26,10,2990,,0,0,0.79,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,Abuzah,Overload,Exposure,3,17,21,8,2536,,0,0,0.9,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,Drazah,Overload,Exposure,3,25,21,4,3087,,0,0,1.24,False
+MATCH_214796,2025-12-05,CDL Major 1 Qualifier,BO5,False,2026,FaZe Vegas,Los Angeles Thieves,Simp,Overload,Exposure,3,30,19,3,3395,,0,0,1.62,False
