@@ -24,6 +24,87 @@ def get_database_url():
 DATABASE_URL = get_database_url()
 
 # ============================================================================
+# PLAYER POSITIONS (2026 CDL Season)
+# ============================================================================
+PLAYER_POSITIONS = {
+    # Boston Breach
+    'Cammy': 'AR',
+    'Snoopy': 'SMG',
+    'Purj': 'SMG',
+    'Nastie': 'Flex',
+    
+    # Carolina Royal Ravens
+    'SlasheR': 'AR',
+    'Nero': 'SMG',
+    'Lurqxx': 'SMG',
+    'Craze': 'Flex',
+    
+    # Cloud9 New York
+    'Mack': 'AR',
+    'Afro': 'SMG',
+    'Beans': 'SMG',
+    'Vivid': 'Flex',
+    
+    # FaZe Vegas
+    'Drazah': 'AR',
+    'Abuzah': 'SMG',
+    '04': 'SMG',
+    'Simp': 'Flex',
+    
+    # G2 Minnesota
+    'Skyz': 'AR',
+    'Estreal': 'SMG',
+    'Kremp': 'SMG',
+    'Mamba': 'Flex',
+    
+    # Los Angeles Thieves
+    'aBeZy': 'AR',
+    'HyDra': 'SMG',
+    'Scrap': 'SMG',
+    'Kenny': 'Flex',
+    
+    # Miami Heretics
+    'MettalZ': 'AR',
+    'Traixx': 'SMG',
+    'SupeR': 'SMG',
+    'RenKoR': 'Flex',
+    
+    # OpTic Texas
+    'Shotzzy': 'SMG',
+    'Dashy': 'AR',
+    'Huke': 'SMG',
+    'Mercules': 'Flex',
+    
+    # Paris Gentle Mates
+    'Envoy': 'AR',
+    'Ghosty': 'SMG',
+    'Neptune': 'SMG',
+    'Sib': 'Flex',
+    
+    # Riyadh Falcons
+    'Cellium': 'AR',
+    'Pred': 'Flex',
+    'Exnid': 'SMG',
+    'KiSMET': 'SMG',
+    
+    # Toronto KOI
+    'ReeaL': 'AR',
+    'CleanX': 'SMG',
+    'JoeDeceives': 'SMG',
+    'Insight': 'Flex',
+    
+    # Vancouver Surge
+    'Abe': 'AR',
+    'Gwinn': 'SMG',
+    'Lunarz': 'SMG',
+    'Lqgend': 'Flex',
+}
+
+def get_player_position(player_name: str) -> str:
+    """Get the position for a player, returns 'Unknown' if not found"""
+    return PLAYER_POSITIONS.get(player_name, 'Unknown')
+
+# ============================================================================
 # COLUMN MAPPING
 # ============================================================================
 # If your breakingpoint.gg export uses different column names, map them here.

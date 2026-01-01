@@ -80,6 +80,7 @@ class PlayerStats(Base):
     player_name = Column(String(255), nullable=False)
     team_name = Column(String(255), nullable=False)
     opponent_team_name = Column(String(255))
+    position = Column(String(50))  # AR, SMG, or Flex
     map_number = Column(Integer)
     map_name = Column(String(255))
     mode = Column(String(100))
@@ -211,11 +212,16 @@ def cache_match_data(df: pd.DataFrame) -> bool:
             # Handle both 'map_number' and 'game_num' column names
             map_num = row.get('map_number') or row.get('game_num')
             
+            # Get player position
+            from config import get_player_position
+            position = get_player_position(row['player_name'])
+            
             player_stat = PlayerStats(
                 match_id=row['match_id'],
                 player_name=row['player_name'],
                 team_name=row['team_name'],
                 opponent_team_name=row.get('opponent_team_name'),
+                position=position,
                 map_number=int(map_num) if pd.notna(map_num) else None,
                 map_name=row.get('map_name'),
                 mode=row.get('mode'),
@@ -283,6 +289,7 @@ def load_from_cache() -> Optional[pd.DataFrame]:
                 'player_name': stat.player_name,
                 'team_name': stat.team_name,
                 'opponent_team_name': stat.opponent_team_name,
+                'position': stat.position,
                 'map_number': stat.map_number,
                 'map_name': stat.map_name,
                 'mode': stat.mode,
