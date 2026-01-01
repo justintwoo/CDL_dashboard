@@ -3,13 +3,13 @@ CDL Stats Dashboard - Streamlit App
 Interactive dashboard for Call of Duty League statistics from breakingpoint.gg
 
 Features:
-- Data Overview: Summary and filtering
+- Data Overview: Summary and filtering with Position filter (AR/SMG/Flex)
 - Player Overview: Overall averages across all modes/maps
 - Per-Map/Mode Breakdown: Detailed performance by map and game mode
 - Head-to-Head: Performance vs specific opponents
 
 Author: CDL Dashboard Team
-Date: 2025
+Date: 2026
 """
 
 import streamlit as st
