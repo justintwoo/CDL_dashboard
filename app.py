@@ -689,156 +689,161 @@ def page_player_overview():
 # ============================================================================
 
 def page_map_mode_breakdown():
-    """Display per-map and per-mode statistics."""
+    """Display aggregated map and mode statistics by position."""
     st.markdown('<div class="title-section"><h2>🗺️ Per-Map / Per-Mode Breakdown</h2></div>', 
                 unsafe_allow_html=True)
     
     filtered_df = render_sidebar_filters()
     
-    # Main area filters (moved from sidebar)
-    st.markdown("### Filters")
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        all_players = sorted(filtered_df['player_name'].unique())
-        selected_player = st.selectbox(
-            "Select Player",
-            all_players,
-            key="map_mode_player",
-        )
-    
-    with col2:
-        # Position filter
-        positions = ['All']
-        if 'position' in filtered_df.columns:
-            positions += sorted(filtered_df['position'].unique().tolist())
-        selected_position = st.selectbox(
-            "Position",
-            positions,
-            key="map_mode_position",
-        )
-    
-    with col3:
-        if not selected_player:
-            st.warning("No players available.")
-            return
-        
-        player_df = filtered_df[filtered_df['player_name'] == selected_player]
-        all_modes = sorted(player_df['mode'].unique())
-        selected_mode = st.selectbox(
-            "Select Mode",
-            all_modes,
-            key="map_mode_mode",
-        )
-    
-    with col4:
-        # Win/Loss filter
-        result_filter = st.selectbox(
-            "Result",
-            ["All", "Win", "Loss"],
-            key="map_mode_result",
-        )
-    
-    # Apply position filter if not 'All'
-    if selected_position != 'All' and 'position' in player_df.columns:
-        player_df = player_df[player_df['position'] == selected_position]
-    
-    # Apply result filter
-    if result_filter == "Win":
-        player_df = player_df[player_df['won_map'] == True]
-    elif result_filter == "Loss":
-        player_df = player_df[player_df['won_map'] == False]
-    
-    # Get map stats
-    st.markdown(f"### {selected_player} - {selected_mode}")
-    
-    map_stats = get_player_map_mode_stats(
-        player_df,
-        selected_player,
-        selected_mode,
-    )
-    
-    if map_stats.empty:
-        st.info("No data available for selected filters.")
+    # Check if position data is available
+    if 'position' not in filtered_df.columns:
+        st.warning("⚠️ Position data not available in the dataset.")
         return
     
-    # Metrics
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("Maps Played", map_stats['Maps_Played'].sum())
-    with col2:
-        st.metric("Avg Kills", map_stats['Avg_Kills'].mean().round(2))
-    with col3:
-        st.metric("Avg K/D", map_stats['KD_Ratio'].mean().round(2))
-    with col4:
-        st.metric("Avg Win Rate", f"{(map_stats['Win_Rate'].mean() * 100):.1f}%")
-    
-    # Map stats table
-    st.markdown("#### Per-Map Statistics")
-    display_cols = [
-        'Map', 'Maps_Played', 'Avg_Kills', 'Avg_Deaths',
-        'KD_Ratio', 'Avg_Damage', 'Win_Rate'
-    ]
-    available_cols = [c for c in display_cols if c in map_stats.columns]
-    
-    st.dataframe(
-        map_stats[available_cols],
-        use_container_width=True,
-        hide_index=True,
-    )
-    
-    # Charts
+    # Main area filters
+    st.markdown("### Filters")
     col1, col2 = st.columns(2)
     
     with col1:
-        fig_kills = px.bar(
-            map_stats,
-            x='Map',
-            y='Avg_Kills',
-            color='Avg_Kills',
-            color_continuous_scale='Viridis',
-            title="Avg Kills by Map",
+        # Position filter - multiselect with default SMG
+        available_positions = sorted(filtered_df['position'].unique().tolist())
+        selected_positions = st.multiselect(
+            "Position",
+            available_positions,
+            default=['SMG'] if 'SMG' in available_positions else available_positions[:1],
+            key="map_mode_positions",
+            help="Select one or more positions to compare (AR, SMG, Flex)"
         )
-        fig_kills.update_layout(height=400)
-        st.plotly_chart(fig_kills, use_container_width=True)
     
     with col2:
-        fig_damage = px.bar(
-            map_stats,
-            x='Map',
-            y='Avg_Damage',
-            color='Avg_Damage',
-            color_continuous_scale='Plasma',
-            title="Avg Damage by Map",
+        # Mode filter - multiselect with default Hardpoint
+        available_modes = sorted(filtered_df['mode'].unique().tolist())
+        selected_modes = st.multiselect(
+            "Game Mode",
+            available_modes,
+            default=['Hardpoint'] if 'Hardpoint' in available_modes else available_modes[:1],
+            key="map_mode_modes",
+            help="Select one or more game modes to analyze"
         )
-        fig_damage.update_layout(height=400)
-        st.plotly_chart(fig_damage, use_container_width=True)
     
-    # Heatmap: Map vs Opponent
-    st.markdown("#### Performance Heatmap (Maps by Opponent)")
+    if not selected_positions:
+        st.warning("Please select at least one position.")
+        return
     
-    # Prepare heatmap data
-    heatmap_df = player_df[player_df['mode'] == selected_mode].copy()
-    pivot_data = heatmap_df.pivot_table(
-        values='kills',
-        index='opponent_team_name',
-        columns='map_name',
-        aggfunc='mean',
+    if not selected_modes:
+        st.warning("Please select at least one game mode.")
+        return
+    
+    # Filter data by selected positions and modes
+    analysis_df = filtered_df[
+        (filtered_df['position'].isin(selected_positions)) &
+        (filtered_df['mode'].isin(selected_modes))
+    ]
+    
+    if analysis_df.empty:
+        st.info("No data available for selected filters.")
+        return
+    
+    # Display summary metrics
+    st.markdown("### 📊 Overall Averages")
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    with col1:
+        st.metric("Total Maps", len(analysis_df))
+    with col2:
+        st.metric("Avg Kills", f"{analysis_df['kills'].mean():.2f}")
+    with col3:
+        st.metric("Avg Deaths", f"{analysis_df['deaths'].mean():.2f}")
+    with col4:
+        avg_kd = analysis_df['kills'].mean() / analysis_df['deaths'].mean() if analysis_df['deaths'].mean() > 0 else 0
+        st.metric("Avg K/D", f"{avg_kd:.2f}")
+    with col5:
+        st.metric("Avg Damage", f"{analysis_df['damage'].mean():.0f}")
+    
+    # Average kills by map and position
+    st.markdown("### 🗺️ Average Kills by Map")
+    
+    map_position_stats = analysis_df.groupby(['map_name', 'position']).agg({
+        'kills': 'mean',
+        'deaths': 'mean',
+        'damage': 'mean',
+        'rating': 'mean',
+        'match_id': 'nunique',
+        'won_map': lambda x: (x == True).sum() / len(x) * 100 if len(x) > 0 else 0
+    }).reset_index()
+    
+    map_position_stats.columns = ['Map', 'Position', 'Avg Kills', 'Avg Deaths', 'Avg Damage', 'Avg Rating', 'Maps Played', 'Win %']
+    map_position_stats['K/D'] = map_position_stats['Avg Kills'] / map_position_stats['Avg Deaths'].replace(0, 1)
+    
+    # Display as table
+    st.dataframe(
+        map_position_stats.round(2),
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            'Map': st.column_config.TextColumn('Map', width='medium'),
+            'Position': st.column_config.TextColumn('Position', width='small'),
+            'Avg Kills': st.column_config.NumberColumn('Avg Kills', format='%.2f'),
+            'Avg Deaths': st.column_config.NumberColumn('Avg Deaths', format='%.2f'),
+            'K/D': st.column_config.NumberColumn('K/D', format='%.2f'),
+            'Avg Damage': st.column_config.NumberColumn('Avg Damage', format='%.0f'),
+            'Avg Rating': st.column_config.NumberColumn('Avg Rating', format='%.2f'),
+            'Win %': st.column_config.NumberColumn('Win %', format='%.1f%%'),
+            'Maps Played': st.column_config.NumberColumn('Maps Played', format='%d'),
+        }
     )
     
-    if not pivot_data.empty:
-        fig_heatmap = px.imshow(
-            pivot_data,
-            labels=dict(x="Map", y="Opponent", color="Avg Kills"),
-            color_continuous_scale="YlOrRd",
-            title="Kills Heatmap: Map vs Opponent",
-            aspect="auto",
+    # Visualizations
+    st.markdown("### 📈 Visual Breakdown")
+    
+    # Bar chart: Average Kills by Map and Position
+    fig_kills = px.bar(
+        map_position_stats,
+        x='Map',
+        y='Avg Kills',
+        color='Position',
+        barmode='group',
+        title='Average Kills by Map and Position',
+        labels={'Avg Kills': 'Average Kills', 'Map': 'Map'},
+        hover_data=['K/D', 'Avg Rating', 'Maps Played']
+    )
+    fig_kills.update_layout(height=500, xaxis_tickangle=-45)
+    st.plotly_chart(fig_kills, use_container_width=True)
+    
+    # Additional charts side by side
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # K/D by Position across all maps
+        position_stats = analysis_df.groupby('position').agg({
+            'kills': 'mean',
+            'deaths': 'mean',
+        }).reset_index()
+        position_stats['K/D'] = position_stats['kills'] / position_stats['deaths']
+        
+        fig_kd = px.bar(
+            position_stats,
+            x='position',
+            y='K/D',
+            color='position',
+            title='Average K/D by Position',
+            labels={'position': 'Position', 'K/D': 'K/D Ratio'}
         )
-        fig_heatmap.update_layout(height=400)
-        st.plotly_chart(fig_heatmap, use_container_width=True)
-
-
+        fig_kd.update_layout(height=400, showlegend=False)
+        st.plotly_chart(fig_kd, use_container_width=True)
+    
+    with col2:
+        # Damage by Position
+        fig_damage = px.bar(
+            analysis_df.groupby('position')['damage'].mean().reset_index(),
+            x='position',
+            y='damage',
+            color='position',
+            title='Average Damage by Position',
+            labels={'position': 'Position', 'damage': 'Average Damage'}
+        )
+        fig_damage.update_layout(height=400, showlegend=False)
+        st.plotly_chart(fig_damage, use_container_width=True)
 
 
 # ============================================================================
