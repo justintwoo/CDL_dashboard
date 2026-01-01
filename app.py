@@ -332,6 +332,20 @@ def page_data_overview():
             key="player_result_filter"
         )
     
+    # Add position filter on a new row
+    col1_pos, col2_pos, col3_pos, col4_pos = st.columns(4)
+    with col1_pos:
+        # Position filter
+        positions = ['All']
+        if 'position' in filtered_df.columns:
+            positions += sorted(filtered_df['position'].unique().tolist())
+        selected_position = st.selectbox(
+            "Position",
+            positions,
+            index=0,
+            key="player_position_filter"
+        )
+    
     # Apply player stats filters
     player_filtered_df = filtered_df.copy()
     
@@ -346,6 +360,10 @@ def page_data_overview():
     # Apply map filter (only if not empty and specific mode is selected)
     if selected_map and selected_mode != "Maps 1-3":
         player_filtered_df = player_filtered_df[player_filtered_df['map_name'] == selected_map]
+    
+    # Apply position filter
+    if selected_position != 'All' and 'position' in player_filtered_df.columns:
+        player_filtered_df = player_filtered_df[player_filtered_df['position'] == selected_position]
     
     # Apply opponent filter (only if not empty)
     if selected_opponent:

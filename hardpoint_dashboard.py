@@ -114,7 +114,7 @@ def page_map_stats(df: pd.DataFrame):
     
     # Filters
     st.subheader("Filters")
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         teams = ['All'] + sorted(hp_df['team_name'].unique().tolist())
@@ -126,6 +126,13 @@ def page_map_stats(df: pd.DataFrame):
     with col3:
         opponents = ['All'] + sorted(hp_df['opponent_team_name'].unique().tolist())
         selected_opponent = st.selectbox("Opponent", opponents, key='map_opponent')
+    
+    with col4:
+        # Position filter
+        positions = ['All']
+        if 'position' in hp_df.columns:
+            positions += sorted(hp_df['position'].unique().tolist())
+        selected_position = st.selectbox("Position", positions, key='map_position')
     
     # Apply filters
     filtered_df = hp_df.copy()
@@ -140,6 +147,9 @@ def page_map_stats(df: pd.DataFrame):
     
     if selected_opponent != 'All':
         filtered_df = filtered_df[filtered_df['opponent_team_name'] == selected_opponent]
+    
+    if selected_position != 'All' and 'position' in filtered_df.columns:
+        filtered_df = filtered_df[filtered_df['position'] == selected_position]
     
     if filtered_df.empty:
         st.warning("No data matches the selected filters")
@@ -236,7 +246,7 @@ def page_player_stats(df: pd.DataFrame):
     
     # Filters
     st.subheader("Filters")
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     
     with col1:
         maps = ['All'] + sorted(hp_df['map_name'].unique().tolist())
@@ -252,6 +262,13 @@ def page_player_stats(df: pd.DataFrame):
     with col4:
         opponents = ['All'] + sorted(hp_df['opponent_team_name'].unique().tolist())
         selected_opponent = st.selectbox("Opponent", opponents, key='player_opponent')
+    
+    with col5:
+        # Position filter
+        positions = ['All']
+        if 'position' in hp_df.columns:
+            positions += sorted(hp_df['position'].unique().tolist())
+        selected_position = st.selectbox("Position", positions, key='player_position')
     
     # Apply filters
     filtered_df = hp_df.copy()
@@ -270,12 +287,15 @@ def page_player_stats(df: pd.DataFrame):
     if selected_opponent != 'All':
         filtered_df = filtered_df[filtered_df['opponent_team_name'] == selected_opponent]
     
+    if selected_position != 'All' and 'position' in filtered_df.columns:
+        filtered_df = filtered_df[filtered_df['position'] == selected_position]
+    
     if filtered_df.empty:
         st.warning("No data matches the selected filters")
         return
     
     # Calculate player statistics
-    player_stats = filtered_df.groupby(['player_name', 'team_name']).agg({
+    agg_dict = {
         'kills': 'mean',
         'deaths': 'mean',
         'assists': 'mean',
@@ -283,7 +303,14 @@ def page_player_stats(df: pd.DataFrame):
         'rating': 'mean',
         'match_id': 'nunique',
         'won_map': lambda x: (x == True).sum() / len(x) * 100
-    }).reset_index()
+    }
+    
+    # Add position to groupby if it exists
+    group_cols = ['player_name', 'team_name']
+    if 'position' in filtered_df.columns:
+        agg_dict['position'] = 'first'
+    
+    player_stats = filtered_df.groupby(group_cols).agg(agg_dict).reset_index()
     
     player_stats = player_stats.rename(columns={
         'player_name': 'Player',
@@ -294,7 +321,8 @@ def page_player_stats(df: pd.DataFrame):
         'damage': 'Avg Damage',
         'rating': 'Avg Rating',
         'match_id': 'Maps Played',
-        'won_map': 'Win %'
+        'won_map': 'Win %',
+        'position': 'Position'
     })
     
     # Calculate K/D ratio
@@ -358,6 +386,7 @@ def page_player_stats(df: pd.DataFrame):
         column_config={
             'Player': st.column_config.TextColumn('Player', width='medium'),
             'Team': st.column_config.TextColumn('Team', width='medium'),
+            'Position': st.column_config.TextColumn('Position', width='small'),
             'Avg Kills': st.column_config.NumberColumn('Avg Kills', format='%.2f'),
             'Avg Deaths': st.column_config.NumberColumn('Avg Deaths', format='%.2f'),
             'Avg Assists': st.column_config.NumberColumn('Avg Assists', format='%.2f'),
