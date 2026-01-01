@@ -332,18 +332,22 @@ def page_data_overview():
             key="player_result_filter"
         )
     
-    # Add position filter on a new row
+    # Add position filter on a new row with clear label
+    st.markdown("**Position Filter:**")
     col1_pos, col2_pos, col3_pos, col4_pos = st.columns(4)
     with col1_pos:
         # Position filter
         positions = ['All']
         if 'position' in filtered_df.columns:
             positions += sorted(filtered_df['position'].unique().tolist())
+        else:
+            st.warning("⚠️ Position data not available")
         selected_position = st.selectbox(
-            "Position",
+            "Position (AR/SMG/Flex)",
             positions,
             index=0,
-            key="player_position_filter"
+            key="player_position_filter",
+            help="Filter players by their position: AR (Assault Rifle), SMG (Sub-Machine Gun), or Flex"
         )
     
     # Apply player stats filters
@@ -691,28 +695,59 @@ def page_map_mode_breakdown():
     
     filtered_df = render_sidebar_filters()
     
-    # Sidebar selections
-    st.sidebar.markdown("### Selection")
+    # Main area filters (moved from sidebar)
+    st.markdown("### Filters")
+    col1, col2, col3, col4 = st.columns(4)
     
-    all_players = sorted(filtered_df['player_name'].unique())
-    selected_player = st.sidebar.selectbox(
-        "Select Player",
-        all_players,
-        key="map_mode_player",
-    )
+    with col1:
+        all_players = sorted(filtered_df['player_name'].unique())
+        selected_player = st.selectbox(
+            "Select Player",
+            all_players,
+            key="map_mode_player",
+        )
     
-    if not selected_player:
-        st.warning("No players available.")
-        return
+    with col2:
+        # Position filter
+        positions = ['All']
+        if 'position' in filtered_df.columns:
+            positions += sorted(filtered_df['position'].unique().tolist())
+        selected_position = st.selectbox(
+            "Position",
+            positions,
+            key="map_mode_position",
+        )
     
-    player_df = filtered_df[filtered_df['player_name'] == selected_player]
+    with col3:
+        if not selected_player:
+            st.warning("No players available.")
+            return
+        
+        player_df = filtered_df[filtered_df['player_name'] == selected_player]
+        all_modes = sorted(player_df['mode'].unique())
+        selected_mode = st.selectbox(
+            "Select Mode",
+            all_modes,
+            key="map_mode_mode",
+        )
     
-    all_modes = sorted(player_df['mode'].unique())
-    selected_mode = st.sidebar.selectbox(
-        "Select Mode",
-        all_modes,
-        key="map_mode_mode",
-    )
+    with col4:
+        # Win/Loss filter
+        result_filter = st.selectbox(
+            "Result",
+            ["All", "Win", "Loss"],
+            key="map_mode_result",
+        )
+    
+    # Apply position filter if not 'All'
+    if selected_position != 'All' and 'position' in player_df.columns:
+        player_df = player_df[player_df['position'] == selected_position]
+    
+    # Apply result filter
+    if result_filter == "Win":
+        player_df = player_df[player_df['won_map'] == True]
+    elif result_filter == "Loss":
+        player_df = player_df[player_df['won_map'] == False]
     
     # Get map stats
     st.markdown(f"### {selected_player} - {selected_mode}")
