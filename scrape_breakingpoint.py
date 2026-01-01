@@ -255,7 +255,8 @@ def scrape_live_data(start_date: Optional[str] = None) -> Optional[pd.DataFrame]
                 matches = page_props['allMatches']
                 print(f"✅ Found {len(matches)} total matches in database")
                 
-                # Filter to completed CDL matches with scores from the specified date
+                # Filter to completed CDL 2026 season matches with scores from the specified date
+                # CDL matches have "CDL" in the event name and season_id = 2026
                 completed = [m for m in matches 
                             if m.get('team1') and m.get('team2') 
                             and m.get('status') == 'complete'
@@ -263,9 +264,11 @@ def scrape_live_data(start_date: Optional[str] = None) -> Optional[pd.DataFrame]
                             and m.get('team_2_score') is not None
                             and m.get('datetime')
                             and m.get('datetime', '')[:10] >= date_threshold
-                            and m.get('event') and m.get('event', {}).get('league') == 'CDL']
+                            and m.get('event') 
+                            and 'CDL' in m.get('event', {}).get('name', '')
+                            and m.get('event', {}).get('season_id') == 2026]
                 
-                print(f"✅ Found {len(completed)} completed CDL matches with scores (since {date_threshold})")
+                print(f"✅ Found {len(completed)} completed CDL 2026 season matches with scores (since {date_threshold})")
                 
                 if not completed:
                     print("⚠️ No completed matches found")
