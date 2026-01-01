@@ -75,12 +75,11 @@ def filter_cdl_maps(df: pd.DataFrame) -> pd.DataFrame:
     return filtered_df
 
 try:
-    from database import init_db, get_cache_stats
-    DATABASE_AVAILABLE = True
+    from database import init_db, get_cache_stats, DATABASE_AVAILABLE
 except ImportError:
     DATABASE_AVAILABLE = False
     def init_db():
-        pass
+        return False
     def get_cache_stats():
         return {'is_cached': False}
 
@@ -1574,7 +1573,17 @@ def main():
     # Initialize database on first load
     if 'db_initialized' not in st.session_state:
         if DATABASE_AVAILABLE:
-            init_db()
+            success = init_db()
+            if not success:
+                st.warning(
+                    "⚠️ Database connection failed. The app will run in fallback mode.\n\n"
+                    "You can still use the app by uploading CSV files manually."
+                )
+        else:
+            st.info(
+                "ℹ️ Running in file-based mode (database not configured).\n\n"
+                "To enable database features, set the DATABASE_URL environment variable."
+            )
         st.session_state.db_initialized = True
     
     # Load data from database
@@ -1582,10 +1591,16 @@ def main():
         st.session_state.df = load_data_with_refresh()
         
         if st.session_state.df.empty:
-            st.warning(
-                "⚠️ No data available in database.\n\n"
-                "Click the **Refresh Data** button to scrape the latest matches."
-            )
+            if DATABASE_AVAILABLE:
+                st.warning(
+                    "⚠️ No data available in database.\n\n"
+                    "Click the **Refresh Data** button to scrape the latest matches."
+                )
+            else:
+                st.warning(
+                    "⚠️ No data available.\n\n"
+                    "Please upload a CSV file to get started, or configure DATABASE_URL to enable data scraping."
+                )
     
     # Header
     st.title("🎮 CDL Stats Dashboard")

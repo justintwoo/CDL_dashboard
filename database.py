@@ -9,16 +9,38 @@ from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime, timedelta
 import pandas as pd
 from typing import Optional
+import os
 
 # Import cloud-compatible database URL from config
 from config import DATABASE_URL
 
-# Create engine and session factory
-engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Base class for ORM models
+# Database availability flag
+DATABASE_AVAILABLE = False
+engine = None
+SessionLocal = None
 Base = declarative_base()
+
+# Try to create engine and session factory with error handling
+try:
+    # Check if DATABASE_URL is properly configured
+    if not DATABASE_URL or DATABASE_URL == "postgresql://justinwoo@localhost:5432/cdl_stats":
+        # Local dev environment or missing environment variable
+        if os.getenv("DATABASE_URL") is None:
+            print("⚠️ DATABASE_URL environment variable not set. Database features will be disabled.")
+            DATABASE_AVAILABLE = False
+        else:
+            # Try to create engine
+            engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
+            SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+            DATABASE_AVAILABLE = True
+    else:
+        # Custom DATABASE_URL provided
+        engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        DATABASE_AVAILABLE = True
+except Exception as e:
+    print(f"⚠️ Failed to initialize database connection: {e}")
+    print("Database features will be disabled. The app will run in file-based mode.")
 
 
 # ============================================================================
@@ -95,12 +117,24 @@ class ScrapeMetadata(Base):
 
 def init_db():
     """Initialize database tables"""
-    Base.metadata.create_all(bind=engine)
-    print("✅ Database initialized")
+    if not DATABASE_AVAILABLE or engine is None:
+        print("⚠️ Database not available. Skipping database initialization.")
+        return False
+    
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("✅ Database initialized")
+        return True
+    except Exception as e:
+        print(f"❌ Failed to initialize database: {e}")
+        print("The app will continue without database features.")
+        return False
 
 
 def get_session():
     """Get a database session"""
+    if not DATABASE_AVAILABLE or SessionLocal is None:
+        raise RuntimeError("Database not available")
     return SessionLocal()
 
 
@@ -114,7 +148,16 @@ def cache_match_data(df: pd.DataFrame) -> bool:
     Returns:
         bool: True if successful, False otherwise
     """
-    session = get_session()
+    if not DATABASE_AVAILABLE:
+        print("⚠️ Database not available. Skipping cache operation.")
+        return False
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return False
+    
     try:
         # Delete existing matches to avoid duplicates (we're replacing with fresh data)
         session.query(Match).delete()
@@ -209,7 +252,16 @@ def load_from_cache() -> Optional[pd.DataFrame]:
     Returns:
         DataFrame with all cached player stats, or None if cache is empty
     """
-    session = get_session()
+    if not DATABASE_AVAILABLE:
+        print("⚠️ Database not available. Cannot load from cache.")
+        return None
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return None
+    
     try:
         # Query all player stats with match info
         query = session.query(PlayerStats).all()
@@ -256,7 +308,16 @@ def load_from_cache() -> Optional[pd.DataFrame]:
 
 def clear_cache():
     """Clear all cached data"""
-    session = get_session()
+    if not DATABASE_AVAILABLE:
+        print("⚠️ Database not available. Cannot clear cache.")
+        return False
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return False
+    
     try:
         session.query(PlayerStats).delete()
         session.query(Match).delete()
@@ -273,7 +334,15 @@ def clear_cache():
 
 def get_cache_stats() -> dict:
     """Get cache statistics"""
-    session = get_session()
+    if not DATABASE_AVAILABLE:
+        return {'is_cached': False, 'match_count': 0, 'player_count': 0}
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return {'is_cached': False, 'match_count': 0, 'player_count': 0}
+    
     try:
         match_count = session.query(func.count(Match.match_id)).scalar()
         player_count = session.query(func.count(PlayerStats.id)).scalar()
@@ -298,7 +367,16 @@ def get_cache_stats() -> dict:
 
 def get_last_scrape_date() -> Optional[datetime]:
     """Get the last scrape date from metadata"""
-    session = get_session()
+    if not DATABASE_AVAILABLE:
+        # Return 7 days ago as default when database not available
+        return datetime.now() - timedelta(days=7)
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return datetime.now() - timedelta(days=7)
+    
     try:
         metadata = session.query(ScrapeMetadata).order_by(ScrapeMetadata.scrape_timestamp.desc()).first()
         if metadata:
@@ -311,7 +389,16 @@ def get_last_scrape_date() -> Optional[datetime]:
 
 def update_last_scrape_date(date: datetime) -> bool:
     """Update the last scrape date in metadata"""
-    session = get_session()
+    if not DATABASE_AVAILABLE:
+        print("⚠️ Database not available. Cannot update last scrape date.")
+        return False
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return False
+    
     try:
         # Create new metadata record
         metadata = ScrapeMetadata(last_scrape_date=date)
