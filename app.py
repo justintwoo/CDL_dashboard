@@ -702,7 +702,7 @@ def page_map_mode_breakdown():
     
     # Main area filters
     st.markdown("### Filters")
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         # Position filter - multiselect with default SMG
@@ -726,6 +726,16 @@ def page_map_mode_breakdown():
             help="Select one or more game modes to analyze"
         )
     
+    with col3:
+        # Win/Loss filter - single select with default All
+        result_filter = st.selectbox(
+            "Result",
+            ["All", "Win", "Loss"],
+            index=0,
+            key="map_mode_result",
+            help="Filter by match result: Win (only winning teams), Loss (only losing teams), or All"
+        )
+    
     if not selected_positions:
         st.warning("Please select at least one position.")
         return
@@ -739,6 +749,13 @@ def page_map_mode_breakdown():
         (filtered_df['position'].isin(selected_positions)) &
         (filtered_df['mode'].isin(selected_modes))
     ]
+    
+    # Apply Win/Loss filter
+    if result_filter == "Win":
+        analysis_df = analysis_df[analysis_df['won_map'] == True]
+    elif result_filter == "Loss":
+        analysis_df = analysis_df[analysis_df['won_map'] == False]
+    # If "All", no additional filtering needed
     
     if analysis_df.empty:
         st.info("No data available for selected filters.")
@@ -778,7 +795,8 @@ def page_map_mode_breakdown():
     
     # Display selected positions info
     positions_text = ", ".join(selected_positions)
-    st.caption(f"Showing combined averages for: **{positions_text}**")
+    result_text = f" ({result_filter}s only)" if result_filter != "All" else " (All matches)"
+    st.caption(f"Showing combined averages for: **{positions_text}**{result_text}")
     
     # Display as table
     st.dataframe(
