@@ -771,27 +771,33 @@ def page_player_detail(player_name):
                 # Kills for team vs Deaths for team gives us the score
                 map_scores[map_key] = f"{int(team_kills)}-{int(team_deaths)}"
         
-        # Create detailed match table with color coding
-        match_data = []
-        match_colors = {}
-        # Updated color palette with better contrast and readability
-        color_palette = [
-            '#D6EAF8',  # Light blue
-            '#FCF3CF',  # Light yellow
-            '#D5F4E6',  # Light green
-            '#FADBD8',  # Light red/pink
-            '#E8DAEF',  # Light purple
-            '#FAE5D3',  # Light orange
-            '#D5DBDB',  # Light gray
-            '#D4EFDF',  # Mint green
-        ]
+        # Team-based color mapping (each team gets a consistent color)
+        TEAM_COLORS = {
+            'Boston Breach': '#D6EAF8',          # Light blue
+            'Carolina Royal Ravens': '#FCF3CF',  # Light yellow
+            'Cloud9 New York': '#D5F4E6',        # Light green
+            'FaZe Vegas': '#FADBD8',             # Light red/pink
+            'G2 Minnesota': '#E8DAEF',           # Light purple
+            'Los Angeles Thieves': '#FAE5D3',    # Light orange
+            'Miami Heretics': '#D5DBDB',         # Light gray
+            'OpTic Texas': '#D4EFDF',            # Mint green
+            'Paris Gentle Mates': '#E3F2FD',     # Sky blue
+            'Riyadh Falcons': '#FFF9C4',         # Pale yellow
+            'Toronto KOI': '#C8E6C9',            # Pale green
+            'Vancouver Surge': '#F8BBD0',        # Pink
+        }
         
-        unique_matches = player_df_sorted['match_id'].unique()
-        for idx, match_id in enumerate(unique_matches):
-            match_colors[match_id] = color_palette[idx % len(color_palette)]
+        # Create detailed match table with team-based color coding
+        match_data = []
+        match_colors = {}  # Maps match_id to team color
         
         for _, row in player_df_sorted.iterrows():
             map_key = (row['match_id'], row['map_number'])
+            
+            # Assign team color to this match (based on player's team, not opponent)
+            if row['match_id'] not in match_colors:
+                match_colors[row['match_id']] = TEAM_COLORS.get(row['team_name'], '#FFFFFF')
+            
             match_data.append({
                 'Match ID': row['match_id'],
                 'Map Score': map_scores.get(map_key, 'N/A'),
