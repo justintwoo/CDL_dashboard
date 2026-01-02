@@ -671,6 +671,175 @@ def load_slips() -> Optional[pd.DataFrame]:
         session.close()
 
 
+def get_slip_picks(slip_id: int) -> Optional[pd.DataFrame]:
+    """
+    Get all picks for a specific slip with betting line details
+    
+    Args:
+        slip_id: The slip ID to get picks for
+    
+    Returns:
+        DataFrame with pick details including line info
+    """
+    if not DATABASE_AVAILABLE:
+        return None
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return None
+    
+    try:
+        picks = session.query(SlipPick).filter(SlipPick.slip_id == slip_id).all()
+        
+        if not picks:
+            return None
+        
+        data = []
+        for pick in picks:
+            # Get the betting line details
+            betting_line = session.query(BettingLine).filter(
+                BettingLine.id == pick.betting_line_id
+            ).first()
+            
+            if betting_line:
+                data.append({
+                    'pick_id': pick.id,
+                    'player_name': betting_line.player_name,
+                    'team_name': betting_line.team_name,
+                    'stat_type': betting_line.stat_type,
+                    'line_value': float(betting_line.line_value),
+                    'map_scope': betting_line.map_scope,
+                    'map_number': betting_line.map_number,
+                    'pick_type': pick.pick_type,
+                    'result': pick.result,
+                    'actual_value': float(pick.actual_value) if pick.actual_value else None,
+                    'match_id': betting_line.match_id,
+                })
+        
+        return pd.DataFrame(data) if data else None
+        
+    except Exception as e:
+        print(f"❌ Error loading slip picks: {e}")
+        return None
+    finally:
+        session.close()
+
+
+def update_slip_results(slip_id: int, stats_df: pd.DataFrame) -> bool:
+    """
+    Update slip pick results based on actual match stats
+    
+    Args:
+        slip_id: The slip ID to update
+        stats_df: DataFrame with actual player stats (from st.session_state.df)
+    
+    Returns:
+        bool: True if updated successfully
+    """
+    if not DATABASE_AVAILABLE:
+        return False
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return False
+    
+    try:
+        picks = session.query(SlipPick).filter(SlipPick.slip_id == slip_id).all()
+        
+        all_hit = True
+        any_pending = False
+        
+        for pick in picks:
+            # Get betting line details
+            betting_line = session.query(BettingLine).filter(
+                BettingLine.id == pick.betting_line_id
+            ).first()
+            
+            if not betting_line:
+                continue
+            
+            # Calculate actual value from stats
+            match_stats = stats_df[
+                (stats_df['match_id'] == betting_line.match_id) &
+                (stats_df['player_name'] == betting_line.player_name)
+            ]
+            
+            if match_stats.empty:
+                any_pending = True
+                continue
+            
+            # Filter by map if specific map
+            if betting_line.map_number:
+                match_stats = match_stats[match_stats['map_number'] == betting_line.map_number]
+            
+            if match_stats.empty:
+                any_pending = True
+                continue
+            
+            # Calculate actual stat value
+            stat_col_map = {
+                'Kills': 'kills',
+                'Deaths': 'deaths',
+                'Assists': 'assists',
+                'Damage': 'damage',
+                'K/D': None,  # Calculated
+            }
+            
+            stat_col = stat_col_map.get(betting_line.stat_type, betting_line.stat_type.lower())
+            
+            if stat_col == 'K/D' or betting_line.stat_type == 'K/D':
+                total_kills = match_stats['kills'].sum()
+                total_deaths = match_stats['deaths'].sum()
+                actual_value = total_kills / total_deaths if total_deaths > 0 else total_kills
+            elif stat_col and stat_col in match_stats.columns:
+                actual_value = match_stats[stat_col].sum()
+            else:
+                any_pending = True
+                continue
+            
+            # Determine if pick hit
+            line_value = float(betting_line.line_value)
+            if pick.pick_type == 'over':
+                hit = actual_value > line_value
+            else:  # under
+                hit = actual_value < line_value
+            
+            # Update pick
+            pick.actual_value = actual_value
+            pick.result = "won" if hit else "lost"
+            
+            if not hit:
+                all_hit = False
+        
+        session.commit()
+        
+        # Update slip status (power play: all must hit)
+        slip = session.query(Slip).filter(Slip.id == slip_id).first()
+        if slip:
+            if any_pending:
+                slip.status = "pending"
+            elif all_hit:
+                slip.status = "won"
+                slip.actual_payout = slip.potential_payout
+            else:
+                slip.status = "lost"
+                slip.actual_payout = 0
+            session.commit()
+        
+        return True
+        
+    except Exception as e:
+        session.rollback()
+        print(f"❌ Error updating slip results: {e}")
+        return False
+    finally:
+        session.close()
+
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================

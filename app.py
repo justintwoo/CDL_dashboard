@@ -249,10 +249,29 @@ st.markdown("""
         font-weight: bold;
         margin-top: 5px;
     }
+    .pick-hit {
+        color: #28a745;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: rgba(40, 167, 69, 0.1);
+    }
+    .pick-chalked {
+        color: #dc3545;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: rgba(220, 53, 69, 0.1);
+    }
+    .pick-pending {
+        color: #6c757d;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: rgba(108, 117, 125, 0.1);
+    }
     </style>
-""", unsafe_allow_html=True)
-
-# ============================================================================
+    """, unsafe_allow_html=True)# ============================================================================
 # DATA LOADING & CACHING
 # ============================================================================
 
@@ -2910,6 +2929,8 @@ def page_slip_tracker():
     # Display slips
     st.markdown(f"### 🎫 Slips ({len(filtered_slips)})")
     
+    from database import get_slip_picks, update_slip_results
+    
     for _, slip in filtered_slips.iterrows():
         # Status emoji
         status_emoji = {
@@ -2920,7 +2941,7 @@ def page_slip_tracker():
         }.get(slip['status'], '❓')
         
         with st.expander(f"{status_emoji} {slip['slip_name']} - {slip['created_at'].strftime('%m/%d/%Y %I:%M%p')}"):
-            col1, col2, col3 = st.columns(3)
+            col1, col2, col3, col4 = st.columns(4)
             
             with col1:
                 st.metric("Picks", slip['num_picks'])
@@ -2931,11 +2952,69 @@ def page_slip_tracker():
                     st.metric("Payout", f"${slip['actual_payout']:.2f}")
                 else:
                     st.metric("Potential", f"${slip['potential_payout']:.2f}")
+            with col4:
+                st.markdown(f"**Status**")
+                st.markdown(f"{slip['status'].title()}")
             
-            st.markdown(f"**Status:** {slip['status'].title()}")
+            # Get picks for this slip
+            picks_df = get_slip_picks(slip['id'])
             
-            # TODO: Show individual picks when we query slip_picks
-            st.caption("_Pick details coming soon_")
+            if picks_df is not None and not picks_df.empty:
+                st.markdown("---")
+                st.markdown("#### 📊 Picks")
+                
+                # Check results button for pending slips
+                if slip['status'] == 'pending' and st.session_state.get('df') is not None:
+                    if st.button(f"🔄 Check Results", key=f"check_{slip['id']}"):
+                        with st.spinner("Checking results..."):
+                            if update_slip_results(slip['id'], st.session_state.df):
+                                st.success("✅ Results updated!")
+                                st.rerun()
+                            else:
+                                st.warning("⚠️ Could not update results")
+                
+                # Display each pick
+                for idx, pick in picks_df.iterrows():
+                    pick_symbol = "🔺" if pick['pick_type'] == 'over' else "🔻"
+                    
+                    # Determine if pick hit
+                    if pick['result'] == 'won':
+                        result_color = "green"
+                        result_emoji = "✅"
+                        result_text = "HIT"
+                    elif pick['result'] == 'lost':
+                        result_color = "red"
+                        result_emoji = "❌"
+                        result_text = "CHALKED"
+                    else:
+                        result_color = "gray"
+                        result_emoji = "⏳"
+                        result_text = "PENDING"
+                    
+                    # Create columns for pick display
+                    pcol1, pcol2, pcol3 = st.columns([3, 2, 2])
+                    
+                    with pcol1:
+                        st.markdown(f"{pick_symbol} **{pick['player_name']}** ({pick['team_name']})")
+                        st.caption(f"{pick['stat_type']} • {pick['map_scope']}")
+                    
+                    with pcol2:
+                        st.markdown(f"**Line:** {pick['pick_type'].upper()} {pick['line_value']}")
+                        if pick['actual_value'] is not None:
+                            st.markdown(f"**Actual:** {pick['actual_value']:.2f}")
+                    
+                    with pcol3:
+                        st.markdown(f":{result_color}[{result_emoji} **{result_text}**]")
+                    
+                    st.divider()
+                
+                # Power play note
+                if slip['status'] == 'lost':
+                    st.error("❌ **Slip Chalked** - In power play mode, all picks must hit to win.")
+                elif slip['status'] == 'won':
+                    st.success("✅ **All picks hit!** Congratulations!")
+            else:
+                st.caption("_No pick details available_")
 
 
 # ============================================================================
