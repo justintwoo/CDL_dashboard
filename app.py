@@ -1667,6 +1667,69 @@ def page_vs_opponents():
 
 
 # ============================================================================
+# PAGE 5: UPCOMING MATCHES
+# ============================================================================
+
+def page_upcoming_matches():
+    """Display upcoming CDL matches."""
+    st.markdown('<div class="title-section"><h2>📅 Upcoming Matches</h2></div>', 
+                unsafe_allow_html=True)
+    
+    # Import the scraper function
+    from scrape_breakingpoint import fetch_upcoming_matches
+    
+    # Add refresh button
+    col1, col2 = st.columns([5, 1])
+    with col2:
+        refresh = st.button("🔄 Refresh", use_container_width=True)
+    
+    # Fetch upcoming matches
+    with st.spinner("Loading upcoming matches..."):
+        upcoming_df = fetch_upcoming_matches()
+    
+    if upcoming_df is None or upcoming_df.empty:
+        st.info("No upcoming CDL matches found.")
+        return
+    
+    # Convert datetime to readable format
+    upcoming_df['date'] = upcoming_df['datetime'].dt.strftime('%B %d, %Y')
+    upcoming_df['time'] = upcoming_df['datetime'].dt.strftime('%I:%M %p ET')
+    
+    # Group by event
+    st.markdown(f"### Total Upcoming Matches: {len(upcoming_df)}")
+    st.divider()
+    
+    events = upcoming_df['event_name'].unique()
+    
+    for event in events:
+        event_matches = upcoming_df[upcoming_df['event_name'] == event]
+        
+        st.markdown(f"### {event}")
+        st.caption(f"{len(event_matches)} matches scheduled")
+        
+        # Display matches in a clean format
+        for _, match in event_matches.iterrows():
+            col1, col2, col3 = st.columns([2, 3, 2])
+            
+            with col1:
+                st.markdown(f"**{match['date']}**")
+                st.caption(match['time'])
+            
+            with col2:
+                st.markdown(f"**{match['team_1']}** vs **{match['team_2']}**")
+                if match['round_name']:
+                    st.caption(f"{match['round_name']} • Best of {match['best_of']}")
+                else:
+                    st.caption(f"Best of {match['best_of']}")
+            
+            with col3:
+                status_emoji = "🔴" if match['status'] == 'live' else "📅"
+                st.markdown(f"{status_emoji} {match['status'].title()}")
+            
+            st.divider()
+
+
+# ============================================================================
 # MAIN APP
 # ============================================================================
 
@@ -1754,6 +1817,7 @@ def main():
             "👤 Player Overview": page_player_overview,
             "🗺️ Map/Mode Breakdown": page_map_mode_breakdown,
             "⚔️ Head-to-Head": page_vs_opponents,
+            "📅 Upcoming Matches": page_upcoming_matches,
         }
         
         selected_page = st.sidebar.radio(
@@ -1771,11 +1835,6 @@ def main():
         ---
         **CDL Stats Dashboard** | Data sourced from breakingpoint.gg  
         For questions or to add new metrics, please refer to the documentation.
-        
-        **Customization Guide:**
-        - If your CSV has different column names, edit the `load_data()` function in `app.py`
-        - To add new stats, create helper functions in `stats_utils.py` and wire them into the appropriate page
-        - For new pages/features, add a new function and page in the `pages` dictionary
         """
     )
 
