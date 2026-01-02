@@ -34,13 +34,6 @@ from stats_utils import (
 )
 
 try:
-    from fetch_player_images import load_player_images
-except ImportError:
-    def load_player_images():
-        """Fallback if image module not available"""
-        return {}
-
-try:
     from scrape_breakingpoint import update_data, get_data_status
 except ImportError:
     def update_data(force_refresh=False):
