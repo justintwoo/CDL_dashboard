@@ -655,7 +655,7 @@ def page_player_overview():
         
         # Team header with records
         st.markdown(f"### {team}")
-        st.caption(f"**Match Record: {series_wins}-{series_losses}** ({total_series} series played)")
+        st.caption(f"**Match Record: {series_wins}-{series_losses}**")
         st.caption(f"Hardpoint: **{hp_won}-{hp_lost}** | Search & Destroy: **{snd_won}-{snd_lost}** | Overload: **{overload_won}-{overload_lost}**")
         
         # Get players for this team (from roster or from data)
