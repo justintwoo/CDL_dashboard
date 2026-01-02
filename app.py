@@ -1564,7 +1564,7 @@ def page_matches():
 
 # PAGE 4: HEAD-TO-HEAD
 def page_vs_opponents():
-    """Display aggregated team head-to-head stats vs opponents with mode breakdown."""
+    """Display league-wide aggregated stats vs selected opponent team."""
     st.markdown('<div class="title-section"><h2>⚔️ Head-to-Head vs Opponents</h2></div>', 
                 unsafe_allow_html=True)
     
@@ -1590,18 +1590,15 @@ def page_vs_opponents():
         st.warning("No opponent teams available.")
         return
     
-    # Filter data for matches against selected opponent
+    # Filter data for matches against selected opponent (league-wide)
     opponent_df = filtered_df[filtered_df['opponent_team_name'] == selected_opponent]
     
     if opponent_df.empty:
         st.info(f"No data available against {selected_opponent}.")
         return
     
-    # Get team name (assuming all records are from same team in filtered data)
-    your_team = opponent_df['team_name'].iloc[0] if not opponent_df.empty else "Your Team"
-    
-    st.markdown(f"### {your_team} vs {selected_opponent}")
-    st.markdown("*Aggregated team averages across all players*")
+    st.markdown(f"### League Averages vs {selected_opponent}")
+    st.markdown("*Aggregated averages across all teams who played against this opponent*")
     st.divider()
     
     # Calculate aggregated mode-specific stats
