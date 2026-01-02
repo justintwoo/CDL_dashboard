@@ -304,8 +304,8 @@ def load_from_cache() -> Optional[pd.DataFrame]:
                 'rating': stat.rating,
                 'won_map': stat.won_map,
                 'game_num': stat.game_num,
-                'team_score': stat.team_score,
-                'opponent_score': stat.opponent_score,
+                'team_score': getattr(stat, 'team_score', None),  # Backward compatible
+                'opponent_score': getattr(stat, 'opponent_score', None),  # Backward compatible
             })
         
         df = pd.DataFrame(data)
