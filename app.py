@@ -621,15 +621,35 @@ def page_player_overview():
     for team in teams:
         team_df = maps_df[maps_df['team_name'] == team]
         
-        # Calculate team record across all maps (count unique match_id + map_number combinations won)
+        # Calculate overall team record (all maps)
         total_maps = len(team_df.groupby(['match_id', 'map_number']).size())
         maps_won = len(team_df[team_df['won_map'] == True].groupby(['match_id', 'map_number']).size())
         maps_lost = total_maps - maps_won
         
-        # Team header with record
+        # Calculate mode-specific records
+        # Hardpoint
+        hp_df = team_df[team_df['mode'] == 'Hardpoint']
+        hp_total = len(hp_df.groupby(['match_id', 'map_number']).size()) if not hp_df.empty else 0
+        hp_won = len(hp_df[hp_df['won_map'] == True].groupby(['match_id', 'map_number']).size()) if not hp_df.empty else 0
+        hp_lost = hp_total - hp_won
+        
+        # Search & Destroy
+        snd_df = team_df[team_df['mode'] == 'Search & Destroy']
+        snd_total = len(snd_df.groupby(['match_id', 'map_number']).size()) if not snd_df.empty else 0
+        snd_won = len(snd_df[snd_df['won_map'] == True].groupby(['match_id', 'map_number']).size()) if not snd_df.empty else 0
+        snd_lost = snd_total - snd_won
+        
+        # Overload
+        overload_df = team_df[team_df['mode'] == 'Overload']
+        overload_total = len(overload_df.groupby(['match_id', 'map_number']).size()) if not overload_df.empty else 0
+        overload_won = len(overload_df[overload_df['won_map'] == True].groupby(['match_id', 'map_number']).size()) if not overload_df.empty else 0
+        overload_lost = overload_total - overload_won
+        
+        # Team header with records
         st.markdown(f"### {team}")
-        st.caption(f"Record: **{maps_won}-{maps_lost}** ({total_maps} total maps played)")
-        st.caption(f"Record: **{maps_won}-{maps_lost}** ({total_maps} maps played across Maps 1-3)")
+        st.caption(f"**Match Record: {maps_won}-{maps_lost}** ({total_maps} total maps)")
+        st.caption(f"Hardpoint: **{hp_won}-{hp_lost}** | Search & Destroy: **{snd_won}-{snd_lost}** | Overload: **{overload_won}-{overload_lost}**")
+
         
         # Get players for this team (from roster or from data)
         if team in team_player_map:
