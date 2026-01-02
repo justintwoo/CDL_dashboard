@@ -866,7 +866,7 @@ def page_team_detail(team_name):
     
     # Team overview metrics
     st.markdown("### Team Overview")
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         total_maps = len(team_df.groupby(['match_id', 'map_number']).size())
@@ -877,12 +877,12 @@ def page_team_detail(team_name):
         st.metric("Series Played", total_series)
     
     with col3:
-        win_rate = (team_df['won_map'].sum() / len(team_df.groupby(['match_id', 'map_number']).size()) * 100) if len(team_df) > 0 else 0
+        # Calculate win rate correctly by counting unique maps won
+        unique_maps = team_df.groupby(['match_id', 'map_number'])['won_map'].first()
+        maps_won = unique_maps.sum()
+        total_unique_maps = len(unique_maps)
+        win_rate = (maps_won / total_unique_maps * 100) if total_unique_maps > 0 else 0
         st.metric("Map Win Rate", f"{win_rate:.1f}%")
-    
-    with col4:
-        avg_kills = team_df.groupby(['match_id', 'map_number', 'player_name'])['kills'].sum().mean()
-        st.metric("Avg Kills/Player", f"{avg_kills:.1f}")
     
     st.divider()
     
