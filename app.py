@@ -653,8 +653,9 @@ def page_player_overview():
                     st.markdown(f"**{player}**")
                 
                 # Calculate stats for maps 1, 2, 3 (all modes)
-                # Map 1-3 average (already filtered to maps 1-3)
-                avg_kills_all = player_data['kills'].mean() if not player_data.empty else 0
+                # For Avg Map 1-3: Sum kills per match (maps 1+2+3), then average those sums
+                series_totals = player_data.groupby('match_id')['kills'].sum()
+                avg_kills_series = series_totals.mean() if not series_totals.empty else 0
                 
                 # Map 1 only (Hardpoint)
                 map1_data = player_data[player_data['map_number'] == 1]
@@ -673,7 +674,7 @@ def page_player_overview():
                 
                 # Display player name and stats
                 st.markdown(f"**{player}**")
-                st.metric("Avg Map 1-3 Kills", f"{avg_kills_all:.1f}")
+                st.metric("Avg Map 1-3 Kills", f"{avg_kills_series:.1f}")
                 st.caption(f"Map 1 ({map1_mode}): **{avg_kills_map1:.1f}**")
                 st.caption(f"Map 2 ({map2_mode}): **{avg_kills_map2:.1f}**")
                 st.caption(f"Map 3 ({map3_mode}): **{avg_kills_map3:.1f}**")
