@@ -669,6 +669,183 @@ def page_data_overview():
 # TEAM DETAIL PAGE
 # ============================================================================
 
+def page_player_detail(player_name):
+    """Display detailed player dashboard with granular match history."""
+    st.markdown(f'<div class="title-section"><h2>🎮 {player_name}</h2></div>', 
+                unsafe_allow_html=True)
+    
+    # Back button
+    col1, col2 = st.columns([1, 5])
+    with col1:
+        if st.button("← Back"):
+            if 'current_player' in st.session_state:
+                del st.session_state.current_player
+            st.rerun()
+    
+    filtered_df = render_sidebar_filters()
+    player_df = filtered_df[filtered_df['player_name'] == player_name]
+    
+    if player_df.empty:
+        st.warning(f"No data available for {player_name}")
+        return
+    
+    # Get player info
+    team_name = player_df['team_name'].iloc[0]
+    from config import get_player_position
+    position = get_player_position(player_name)
+    
+    # Player info header
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Team", team_name)
+    with col2:
+        st.metric("Position", position)
+    with col3:
+        st.metric("Maps Played", len(player_df))
+    
+    st.divider()
+    
+    # Overall stats
+    st.markdown("### Career Statistics")
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    with col1:
+        avg_kills = player_df['kills'].mean()
+        st.metric("Avg Kills", f"{avg_kills:.1f}")
+    
+    with col2:
+        avg_deaths = player_df['deaths'].mean()
+        st.metric("Avg Deaths", f"{avg_deaths:.1f}")
+    
+    with col3:
+        kd_ratio = player_df['kills'].sum() / player_df['deaths'].sum() if player_df['deaths'].sum() > 0 else 0
+        st.metric("K/D Ratio", f"{kd_ratio:.2f}")
+    
+    with col4:
+        avg_damage = player_df['damage'].mean()
+        st.metric("Avg Damage", f"{avg_damage:.0f}")
+    
+    with col5:
+        win_rate = (player_df['won_map'].sum() / len(player_df) * 100) if len(player_df) > 0 else 0
+        st.metric("Win Rate", f"{win_rate:.1f}%")
+    
+    st.divider()
+    
+    # Recent Match Performance
+    st.markdown("### Recent Match Performance")
+    
+    # Sort by date (most recent first)
+    player_df_sorted = player_df.sort_values('date', ascending=False)
+    
+    # Create detailed match table
+    match_data = []
+    for _, row in player_df_sorted.iterrows():
+        match_data.append({
+            'Date': row['date'].strftime('%Y-%m-%d') if pd.notna(row['date']) else 'N/A',
+            'Opponent': row['opponent_team_name'],
+            'Map': row['map_name'],
+            'Mode': row['mode'],
+            'Map #': int(row['map_number']) if pd.notna(row['map_number']) else 'N/A',
+            'Kills': int(row['kills']),
+            'Deaths': int(row['deaths']),
+            'Assists': int(row['assists']),
+            'K/D': round(row['kills'] / row['deaths'], 2) if row['deaths'] > 0 else row['kills'],
+            'Damage': int(row['damage']),
+            'Result': '✅ Win' if row['won_map'] else '❌ Loss'
+        })
+    
+    match_df = pd.DataFrame(match_data)
+    
+    # Display with styling
+    st.dataframe(
+        match_df,
+        use_container_width=True,
+        hide_index=True,
+        height=600
+    )
+    
+    st.divider()
+    
+    # Performance by Mode
+    st.markdown("### Performance by Game Mode")
+    
+    mode_tabs = st.tabs(["📊 Overview", "🎯 Hardpoint", "💣 Search & Destroy", "⚡ Overload"])
+    
+    with mode_tabs[0]:
+        # Mode comparison
+        mode_stats = []
+        for mode in ['Hardpoint', 'Search & Destroy', 'Overload']:
+            mode_df = player_df[player_df['mode'] == mode]
+            if not mode_df.empty:
+                mode_stats.append({
+                    'Mode': mode,
+                    'Maps': len(mode_df),
+                    'Avg Kills': mode_df['kills'].mean(),
+                    'Avg Deaths': mode_df['deaths'].mean(),
+                    'K/D': mode_df['kills'].mean() / mode_df['deaths'].mean() if mode_df['deaths'].mean() > 0 else 0,
+                    'Avg Damage': mode_df['damage'].mean(),
+                    'Win %': (mode_df['won_map'].sum() / len(mode_df) * 100)
+                })
+        
+        if mode_stats:
+            mode_stats_df = pd.DataFrame(mode_stats)
+            st.dataframe(
+                mode_stats_df.style.format({
+                    'Avg Kills': '{:.1f}',
+                    'Avg Deaths': '{:.1f}',
+                    'K/D': '{:.2f}',
+                    'Avg Damage': '{:.0f}',
+                    'Win %': '{:.1f}%'
+                }),
+                use_container_width=True,
+                hide_index=True
+            )
+            
+            # Charts
+            col1, col2 = st.columns(2)
+            with col1:
+                fig = px.bar(mode_stats_df, x='Mode', y='Avg Kills', color='Avg Kills',
+                           color_continuous_scale='Blues', title='Avg Kills by Mode')
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with col2:
+                fig = px.bar(mode_stats_df, x='Mode', y='K/D', color='K/D',
+                           color_continuous_scale='Greens', title='K/D by Mode')
+                st.plotly_chart(fig, use_container_width=True)
+    
+    # Individual mode tabs
+    for idx, mode in enumerate(['Hardpoint', 'Search & Destroy', 'Overload'], 1):
+        with mode_tabs[idx]:
+            mode_df = player_df[player_df['mode'] == mode]
+            if mode_df.empty:
+                st.info(f"No {mode} data available.")
+            else:
+                # Performance by map
+                st.markdown(f"#### {mode} Performance by Map")
+                map_stats = mode_df.groupby('map_name').agg({
+                    'kills': 'mean',
+                    'deaths': 'mean',
+                    'damage': 'mean',
+                    'won_map': lambda x: (x.sum() / len(x) * 100)
+                }).reset_index()
+                
+                map_stats.columns = ['Map', 'Avg Kills', 'Avg Deaths', 'Avg Damage', 'Win %']
+                map_stats['K/D'] = map_stats['Avg Kills'] / map_stats['Avg Deaths']
+                map_stats['Maps'] = mode_df.groupby('map_name').size().values
+                
+                st.dataframe(
+                    map_stats[['Map', 'Maps', 'Avg Kills', 'Avg Deaths', 'K/D', 'Avg Damage', 'Win %']].style.format({
+                        'Avg Kills': '{:.1f}',
+                        'Avg Deaths': '{:.1f}',
+                        'K/D': '{:.2f}',
+                        'Avg Damage': '{:.0f}',
+                        'Win %': '{:.1f}%'
+                    }),
+                    use_container_width=True,
+                    hide_index=True
+                )
+
+
 def page_team_detail(team_name):
     """Display detailed team dashboard with mode-specific analysis."""
     st.markdown(f'<div class="title-section"><h2>🏆 {team_name}</h2></div>', 
@@ -752,6 +929,19 @@ def page_team_detail(team_name):
                     # Player stats on this map
                     player_stats = []
                     players = sorted(map_df['player_name'].unique())
+                    
+                    # Display player buttons for navigation
+                    st.markdown("**Click player name to view detailed stats:**")
+                    player_cols = st.columns(min(len(players), 4))
+                    for idx, player in enumerate(players):
+                        with player_cols[idx % 4]:
+                            if st.button(f"👤 {player}", key=f"hp_{map_name}_{player}", use_container_width=True):
+                                st.session_state.current_player = player
+                                if 'current_team' in st.session_state:
+                                    del st.session_state.current_team
+                                st.rerun()
+                    
+                    st.markdown("---")
                     
                     for player in players:
                         player_map_df = map_df[map_df['player_name'] == player]
@@ -922,6 +1112,11 @@ def page_player_overview():
     """Display team-organized player statistics across all game modes."""
     st.markdown('<div class="title-section"><h2>👤 Player Overview</h2></div>', 
                 unsafe_allow_html=True)
+    
+    # Check if we should show player detail page
+    if 'current_player' in st.session_state and st.session_state.current_player:
+        page_player_detail(st.session_state.current_player)
+        return
     
     # Check if we should show team detail page
     if 'current_team' in st.session_state and st.session_state.current_team:
@@ -2235,21 +2430,25 @@ def main():
         
         st.divider()
         
-        # Page navigation
-        pages = {
-            "👤 Player Overview": page_player_overview,
-            "🗺️ Map/Mode Breakdown": page_map_mode_breakdown,
-            "⚔️ Head-to-Head": page_vs_opponents,
-            "📅 Upcoming Matches": page_upcoming_matches,
-        }
-        
-        selected_page = st.sidebar.radio(
-            "📍 Navigation",
-            list(pages.keys()),
-        )
-        
-        # Display selected page
-        pages[selected_page]()
+        # Page navigation - hide if on detail page
+        if 'current_team' not in st.session_state and 'current_player' not in st.session_state:
+            pages = {
+                "👤 Player Overview": page_player_overview,
+                "🗺️ Map/Mode Breakdown": page_map_mode_breakdown,
+                "⚔️ Head-to-Head": page_vs_opponents,
+                "📅 Upcoming Matches": page_upcoming_matches,
+            }
+            
+            selected_page = st.sidebar.radio(
+                "📍 Navigation",
+                list(pages.keys()),
+            )
+            
+            # Display selected page
+            pages[selected_page]()
+        else:
+            # On detail page, just show Player Overview
+            page_player_overview()
     
     # Footer
     st.divider()
