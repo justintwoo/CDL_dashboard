@@ -555,3 +555,87 @@ In app.py:
    st.caption(f"Last updated: {status['last_updated']}")
     """)
     print("=" * 70)
+
+
+def fetch_upcoming_matches() -> Optional[pd.DataFrame]:
+    """
+    Fetch upcoming CDL matches from breakingpoint.gg
+    
+    Returns:
+        DataFrame with upcoming match information or None if scraping fails
+    """
+    print("📅 Fetching upcoming matches from breakingpoint.gg...")
+    
+    try:
+        response = requests.get("https://breakingpoint.gg/matches", headers=HEADERS, timeout=10)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        scripts = soup.find_all('script', type='application/json')
+        
+        for script in scripts:
+            content = script.string
+            if not content:
+                continue
+                
+            try:
+                data = json.loads(content)
+                page_props = data.get('props', {}).get('pageProps', {})
+                all_matches = page_props.get('allMatches', [])
+                
+                if not all_matches:
+                    continue
+                
+                # Filter for upcoming matches (status != 'complete')
+                upcoming_matches = []
+                
+                for match in all_matches:
+                    status = match.get('status')
+                    if status != 'complete':
+                        # Extract match info with safe access
+                        team1 = match.get('team1') or {}
+                        team2 = match.get('team2') or {}
+                        event = match.get('event') or {}
+                        round_info = match.get('round') or {}
+                        
+                        match_info = {
+                            'match_id': match.get('id'),
+                            'datetime': match.get('datetime'),
+                            'team_1': team1.get('name', 'TBD'),
+                            'team_2': team2.get('name', 'TBD'),
+                            'team_1_id': match.get('team_1_id'),
+                            'team_2_id': match.get('team_2_id'),
+                            'event_name': event.get('name', 'Unknown Event'),
+                            'status': status,
+                            'best_of': match.get('best_of', 5),
+                            'round_name': round_info.get('name', ''),
+                        }
+                        
+                        # Only include CDL events
+                        event_name = match_info['event_name']
+                        if 'CDL' in event_name:
+                            upcoming_matches.append(match_info)
+                
+                if upcoming_matches:
+                    df = pd.DataFrame(upcoming_matches)
+                    
+                    # Sort by datetime
+                    df['datetime'] = pd.to_datetime(df['datetime'])
+                    df = df.sort_values('datetime')
+                    
+                    print(f"✅ Found {len(df)} upcoming CDL matches")
+                    return df
+                else:
+                    print("⚠️  No upcoming CDL matches found")
+                    return None
+                    
+            except json.JSONDecodeError:
+                continue
+        
+        print("❌ Could not parse match data")
+        return None
+        
+    except Exception as e:
+        print(f"❌ Error fetching upcoming matches: {e}")
+        return None
+
