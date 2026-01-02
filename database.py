@@ -114,6 +114,63 @@ class ScrapeMetadata(Base):
         return f"<ScrapeMetadata last_scrape={self.last_scrape_date}>"
 
 
+class BettingLine(Base):
+    """Stores player prop betting lines from Breaking Point"""
+    __tablename__ = "betting_lines"
+    
+    id = Column(Integer, primary_key=True)
+    match_id = Column(String(50), ForeignKey("matches.match_id"), nullable=False)
+    player_name = Column(String(255), nullable=False)
+    team_name = Column(String(255), nullable=False)
+    stat_type = Column(String(100), nullable=False)  # kills, deaths, damage, etc.
+    line_value = Column(Numeric(10, 2), nullable=False)  # The over/under line
+    map_scope = Column(String(50), nullable=False)  # "Map 1", "Map 2", "Map 3", "Maps 1-3"
+    map_number = Column(Integer)  # 1, 2, 3, or None for multi-map
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<BettingLine {self.player_name} {self.stat_type} {self.line_value} ({self.map_scope})>"
+
+
+class Slip(Base):
+    """User-created betting slips"""
+    __tablename__ = "slips"
+    
+    id = Column(Integer, primary_key=True)
+    slip_name = Column(String(255))  # Optional user-friendly name
+    created_at = Column(DateTime, default=datetime.utcnow)
+    status = Column(String(50), default="pending")  # pending, won, lost, void
+    stake = Column(Numeric(10, 2))  # Amount user would bet
+    potential_payout = Column(Numeric(10, 2))  # Calculated payout
+    actual_payout = Column(Numeric(10, 2))  # Actual payout (if won)
+    
+    # Relationship
+    picks = relationship("SlipPick", back_populates="slip", cascade="all, delete-orphan")
+    
+    def __repr__(self):
+        return f"<Slip {self.id} | {self.slip_name} | {self.status}>"
+
+
+class SlipPick(Base):
+    """Individual picks within a slip"""
+    __tablename__ = "slip_picks"
+    
+    id = Column(Integer, primary_key=True)
+    slip_id = Column(Integer, ForeignKey("slips.id"), nullable=False)
+    betting_line_id = Column(Integer, ForeignKey("betting_lines.id"), nullable=False)
+    pick_type = Column(String(10), nullable=False)  # "over" or "under"
+    result = Column(String(50))  # "won", "lost", "pending", "void"
+    actual_value = Column(Numeric(10, 2))  # Actual stat value when match completes
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    slip = relationship("Slip", back_populates="picks")
+    
+    def __repr__(self):
+        return f"<SlipPick {self.pick_type} | {self.result}>"
+
+
 # ============================================================================
 # DATABASE OPERATIONS
 # ============================================================================
@@ -423,6 +480,193 @@ def update_last_scrape_date(date: datetime) -> bool:
         session.rollback()
         print(f"❌ Error updating last scrape date: {e}")
         return False
+    finally:
+        session.close()
+
+
+def save_betting_lines(lines_df: pd.DataFrame) -> bool:
+    """
+    Save betting lines to database
+    
+    Args:
+        lines_df: DataFrame with columns: match_id, player_name, team_name, stat_type, line_value, map_scope, map_number
+    
+    Returns:
+        bool: True if successful
+    """
+    if not DATABASE_AVAILABLE:
+        print("⚠️ Database not available. Cannot save betting lines.")
+        return False
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return False
+    
+    try:
+        for _, row in lines_df.iterrows():
+            betting_line = BettingLine(
+                match_id=row['match_id'],
+                player_name=row['player_name'],
+                team_name=row['team_name'],
+                stat_type=row['stat_type'],
+                line_value=float(row['line_value']),
+                map_scope=row['map_scope'],
+                map_number=int(row['map_number']) if pd.notna(row.get('map_number')) else None,
+            )
+            session.add(betting_line)
+        
+        session.commit()
+        print(f"✅ Saved {len(lines_df)} betting lines")
+        return True
+        
+    except Exception as e:
+        session.rollback()
+        print(f"❌ Error saving betting lines: {e}")
+        return False
+    finally:
+        session.close()
+
+
+def load_betting_lines(match_id: Optional[str] = None) -> Optional[pd.DataFrame]:
+    """
+    Load betting lines from database
+    
+    Args:
+        match_id: Optional match ID to filter by
+    
+    Returns:
+        DataFrame with betting lines or None
+    """
+    if not DATABASE_AVAILABLE:
+        return None
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return None
+    
+    try:
+        query = session.query(BettingLine)
+        if match_id:
+            query = query.filter(BettingLine.match_id == match_id)
+        
+        lines = query.all()
+        
+        if not lines:
+            return None
+        
+        data = []
+        for line in lines:
+            data.append({
+                'id': line.id,
+                'match_id': line.match_id,
+                'player_name': line.player_name,
+                'team_name': line.team_name,
+                'stat_type': line.stat_type,
+                'line_value': float(line.line_value),
+                'map_scope': line.map_scope,
+                'map_number': line.map_number,
+                'created_at': line.created_at,
+            })
+        
+        return pd.DataFrame(data)
+        
+    except Exception as e:
+        print(f"❌ Error loading betting lines: {e}")
+        return None
+    finally:
+        session.close()
+
+
+def save_slip(slip_data: dict, picks: list) -> Optional[int]:
+    """
+    Save a betting slip with picks
+    
+    Args:
+        slip_data: Dict with slip_name, stake, potential_payout
+        picks: List of dicts with betting_line_id, pick_type
+    
+    Returns:
+        Slip ID if successful, None otherwise
+    """
+    if not DATABASE_AVAILABLE:
+        return None
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return None
+    
+    try:
+        slip = Slip(
+            slip_name=slip_data.get('slip_name', 'Untitled Slip'),
+            stake=slip_data.get('stake', 0),
+            potential_payout=slip_data.get('potential_payout', 0),
+            status="pending"
+        )
+        session.add(slip)
+        session.flush()  # Get slip ID
+        
+        for pick in picks:
+            slip_pick = SlipPick(
+                slip_id=slip.id,
+                betting_line_id=pick['betting_line_id'],
+                pick_type=pick['pick_type'],
+                result="pending"
+            )
+            session.add(slip_pick)
+        
+        session.commit()
+        print(f"✅ Saved slip {slip.id} with {len(picks)} picks")
+        return slip.id
+        
+    except Exception as e:
+        session.rollback()
+        print(f"❌ Error saving slip: {e}")
+        return None
+    finally:
+        session.close()
+
+
+def load_slips() -> Optional[pd.DataFrame]:
+    """Load all slips from database"""
+    if not DATABASE_AVAILABLE:
+        return None
+    
+    try:
+        session = get_session()
+    except Exception as e:
+        print(f"❌ Failed to get database session: {e}")
+        return None
+    
+    try:
+        slips = session.query(Slip).order_by(Slip.created_at.desc()).all()
+        
+        if not slips:
+            return None
+        
+        data = []
+        for slip in slips:
+            data.append({
+                'id': slip.id,
+                'slip_name': slip.slip_name,
+                'created_at': slip.created_at,
+                'status': slip.status,
+                'stake': float(slip.stake) if slip.stake else 0,
+                'potential_payout': float(slip.potential_payout) if slip.potential_payout else 0,
+                'actual_payout': float(slip.actual_payout) if slip.actual_payout else 0,
+                'num_picks': len(slip.picks),
+            })
+        
+        return pd.DataFrame(data)
+        
+    except Exception as e:
+        print(f"❌ Error loading slips: {e}")
+        return None
     finally:
         session.close()
 

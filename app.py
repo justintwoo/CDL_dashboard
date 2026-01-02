@@ -2663,6 +2663,281 @@ def page_upcoming_matches():
             st.divider()
 
 
+def page_slip_creator():
+    """PrizePicks-style slip creator interface."""
+    st.markdown('<div class="title-section"><h2>🎯 Slip Creator</h2></div>', 
+                unsafe_allow_html=True)
+    
+    st.markdown("""
+    **Build your betting slips like PrizePicks!**  
+    Select player props (Over/Under), add them to your slip, and see potential payouts.
+    """)
+    
+    # Try to load betting lines from database
+    from database import load_betting_lines, save_slip
+    
+    betting_lines_df = load_betting_lines()
+    
+    if betting_lines_df is None or betting_lines_df.empty:
+        st.warning("""
+        ⚠️ **No betting lines available**
+        
+        Betting lines are scraped from Breaking Point when matches are announced.  
+        Check back closer to match day when lines are posted!
+        
+        _Note: This is a demo feature. No actual betting occurs._
+        """)
+        
+        # Show demo/mock data for testing
+        st.info("💡 **Demo Mode**: Showing sample data for testing")
+        
+        # Create mock data
+        mock_data = []
+        players = ['Shotzzy', 'Dashy', 'Simp', 'aBeZy', 'Insight', 'CleanX']
+        stat_types = ['Kills', 'Deaths', 'Damage', 'K/D']
+        maps = ['Map 1', 'Map 2', 'Map 3', 'Maps 1-3']
+        
+        for i, player in enumerate(players):
+            for stat in stat_types:
+                line_val = 15 + i * 2 if stat == 'Kills' else (10 + i if stat == 'Deaths' else (2500 + i * 100 if stat == 'Damage' else 1.2 + i * 0.1))
+                mock_data.append({
+                    'id': i * 100 + len(mock_data),
+                    'match_id': 'demo_match_1',
+                    'player_name': player,
+                    'team_name': 'OpTic Texas' if i < 2 else ('FaZe Vegas' if i < 4 else 'Toronto KOI'),
+                    'stat_type': stat,
+                    'line_value': line_val,
+                    'map_scope': maps[i % len(maps)],
+                    'map_number': (i % 3) + 1 if 'Map 1-3' not in maps[i % len(maps)] else None,
+                })
+        
+        betting_lines_df = pd.DataFrame(mock_data)
+    
+    # Initialize session state for slip
+    if 'slip_picks' not in st.session_state:
+        st.session_state.slip_picks = []
+    
+    # Sidebar for current slip
+    with st.sidebar:
+        st.markdown("### 🎫 Your Slip")
+        
+        if not st.session_state.slip_picks:
+            st.info("No picks yet. Select props below!")
+        else:
+            total_picks = len(st.session_state.slip_picks)
+            st.markdown(f"**{total_picks} Pick{'s' if total_picks != 1 else ''}**")
+            
+            # Display picks
+            for i, pick in enumerate(st.session_state.slip_picks):
+                pick_symbol = "🔺" if pick['pick_type'] == 'over' else "🔻"
+                st.markdown(f"""
+                **{i+1}. {pick_symbol} {pick['player_name']}**  
+                {pick['stat_type']}: {pick['pick_type'].upper()} {pick['line_value']}  
+                _{pick['map_scope']}_
+                """)
+                if st.button(f"❌ Remove", key=f"remove_{i}"):
+                    st.session_state.slip_picks.pop(i)
+                    st.rerun()
+                st.divider()
+            
+            # Payout calculator
+            st.markdown("### 💰 Potential Payout")
+            stake = st.number_input("Stake Amount ($)", min_value=1, max_value=1000, value=10, step=5)
+            
+            # Simple multiplier calculation (demo)
+            multiplier = 1.0 + (total_picks * 0.5)
+            potential_payout = stake * multiplier
+            
+            st.metric("Multiplier", f"{multiplier}x")
+            st.metric("Potential Payout", f"${potential_payout:.2f}")
+            
+            # Save slip button
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("💾 Save Slip", use_container_width=True):
+                    slip_name = f"Slip {datetime.now().strftime('%m/%d %I:%M%p')}"
+                    slip_data = {
+                        'slip_name': slip_name,
+                        'stake': stake,
+                        'potential_payout': potential_payout
+                    }
+                    picks_to_save = [
+                        {'betting_line_id': p['line_id'], 'pick_type': p['pick_type']}
+                        for p in st.session_state.slip_picks
+                    ]
+                    
+                    slip_id = save_slip(slip_data, picks_to_save)
+                    if slip_id:
+                        st.success(f"✅ Slip saved! ID: {slip_id}")
+                    else:
+                        st.warning("⚠️ Could not save slip (database unavailable)")
+            
+            with col2:
+                if st.button("🗑️ Clear Slip", use_container_width=True):
+                    st.session_state.slip_picks = []
+                    st.rerun()
+    
+    # Main content - Available props
+    st.markdown("### 📊 Available Player Props")
+    
+    # Filters
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        selected_map = st.selectbox(
+            "Map Scope",
+            options=['All'] + list(betting_lines_df['map_scope'].unique())
+        )
+    
+    with col2:
+        selected_stat = st.selectbox(
+            "Stat Type",
+            options=['All'] + list(betting_lines_df['stat_type'].unique())
+        )
+    
+    with col3:
+        search_player = st.text_input("Search Player", "")
+    
+    # Apply filters
+    filtered_df = betting_lines_df.copy()
+    if selected_map != 'All':
+        filtered_df = filtered_df[filtered_df['map_scope'] == selected_map]
+    if selected_stat != 'All':
+        filtered_df = filtered_df[filtered_df['stat_type'] == selected_stat]
+    if search_player:
+        filtered_df = filtered_df[filtered_df['player_name'].str.contains(search_player, case=False)]
+    
+    # Display props in a grid
+    st.markdown(f"_Showing {len(filtered_df)} props_")
+    
+    for idx, row in filtered_df.iterrows():
+        col1, col2, col3 = st.columns([3, 2, 2])
+        
+        with col1:
+            st.markdown(f"**{row['player_name']}** ({row['team_name']})")
+            st.caption(f"{row['stat_type']} • {row['map_scope']}")
+        
+        with col2:
+            st.metric("Line", f"{row['line_value']}")
+        
+        with col3:
+            pick_col1, pick_col2 = st.columns(2)
+            with pick_col1:
+                if st.button("🔺 Over", key=f"over_{row['id']}"):
+                    pick = {
+                        'line_id': row['id'],
+                        'player_name': row['player_name'],
+                        'team_name': row['team_name'],
+                        'stat_type': row['stat_type'],
+                        'line_value': row['line_value'],
+                        'map_scope': row['map_scope'],
+                        'pick_type': 'over'
+                    }
+                    st.session_state.slip_picks.append(pick)
+                    st.rerun()
+            
+            with pick_col2:
+                if st.button("🔻 Under", key=f"under_{row['id']}"):
+                    pick = {
+                        'line_id': row['id'],
+                        'player_name': row['player_name'],
+                        'team_name': row['team_name'],
+                        'stat_type': row['stat_type'],
+                        'line_value': row['line_value'],
+                        'map_scope': row['map_scope'],
+                        'pick_type': 'under'
+                    }
+                    st.session_state.slip_picks.append(pick)
+                    st.rerun()
+        
+        st.divider()
+
+
+def page_slip_tracker():
+    """Track and manage saved betting slips."""
+    st.markdown('<div class="title-section"><h2>📋 Slip Tracker</h2></div>', 
+                unsafe_allow_html=True)
+    
+    st.markdown("""
+    **Track your betting slips and see results!**  
+    View all your saved slips, see which ones hit, and track your overall record.
+    """)
+    
+    from database import load_slips
+    
+    slips_df = load_slips()
+    
+    if slips_df is None or slips_df.empty:
+        st.info("""
+        📭 **No slips saved yet**
+        
+        Create your first slip in the **Slip Creator** tab!
+        """)
+        return
+    
+    # Summary metrics
+    st.markdown("### 📊 Overall Stats")
+    col1, col2, col3, col4 = st.columns(4)
+    
+    total_slips = len(slips_df)
+    won_slips = len(slips_df[slips_df['status'] == 'won'])
+    pending_slips = len(slips_df[slips_df['status'] == 'pending'])
+    total_staked = slips_df['stake'].sum()
+    total_payout = slips_df[slips_df['status'] == 'won']['actual_payout'].sum()
+    
+    with col1:
+        st.metric("Total Slips", total_slips)
+    with col2:
+        st.metric("Won", won_slips, delta=f"{(won_slips/total_slips*100):.1f}%" if total_slips > 0 else "0%")
+    with col3:
+        st.metric("Pending", pending_slips)
+    with col4:
+        profit_loss = total_payout - total_staked
+        st.metric("Profit/Loss", f"${profit_loss:.2f}", delta=f"${profit_loss:.2f}")
+    
+    st.divider()
+    
+    # Filter by status
+    status_filter = st.selectbox(
+        "Filter by Status",
+        options=['All', 'Pending', 'Won', 'Lost', 'Void'],
+        index=0
+    )
+    
+    filtered_slips = slips_df.copy()
+    if status_filter != 'All':
+        filtered_slips = filtered_slips[filtered_slips['status'] == status_filter.lower()]
+    
+    # Display slips
+    st.markdown(f"### 🎫 Slips ({len(filtered_slips)})")
+    
+    for _, slip in filtered_slips.iterrows():
+        # Status emoji
+        status_emoji = {
+            'pending': '⏳',
+            'won': '✅',
+            'lost': '❌',
+            'void': '⚪'
+        }.get(slip['status'], '❓')
+        
+        with st.expander(f"{status_emoji} {slip['slip_name']} - {slip['created_at'].strftime('%m/%d/%Y %I:%M%p')}"):
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.metric("Picks", slip['num_picks'])
+            with col2:
+                st.metric("Stake", f"${slip['stake']:.2f}")
+            with col3:
+                if slip['status'] == 'won':
+                    st.metric("Payout", f"${slip['actual_payout']:.2f}")
+                else:
+                    st.metric("Potential", f"${slip['potential_payout']:.2f}")
+            
+            st.markdown(f"**Status:** {slip['status'].title()}")
+            
+            # TODO: Show individual picks when we query slip_picks
+            st.caption("_Pick details coming soon_")
+
+
 # ============================================================================
 # MAIN APP
 # ============================================================================
@@ -2780,6 +3055,8 @@ def main():
             "🗺️ Map/Mode Breakdown": page_map_mode_breakdown,
             "⚔️ Head-to-Head": page_vs_opponents,
             "📅 Upcoming Matches": page_upcoming_matches,
+            "🎯 Slip Creator": page_slip_creator,
+            "📋 Slip Tracker": page_slip_tracker,
         }
         
         # Always show navigation in sidebar
