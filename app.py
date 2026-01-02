@@ -621,12 +621,20 @@ def page_player_overview():
     for team in teams:
         team_df = maps_df[maps_df['team_name'] == team]
         
-        # Calculate overall team record (all maps)
-        total_maps = len(team_df.groupby(['match_id', 'map_number']).size())
-        maps_won = len(team_df[team_df['won_map'] == True].groupby(['match_id', 'map_number']).size())
-        maps_lost = total_maps - maps_won
+        # Calculate series/match record (wins/losses of BO5 series)
+        # Group by match_id and count maps won per series
+        match_results = team_df.groupby('match_id').agg({
+            'won_map': lambda x: x.sum(),  # Count maps won in this series
+            'map_number': 'count'  # Total maps played
+        }).reset_index()
         
-        # Calculate mode-specific records
+        # A team wins the series if they won more than half the maps
+        match_results['series_won'] = match_results['won_map'] > (match_results['map_number'] / 2)
+        series_wins = match_results['series_won'].sum()
+        total_series = len(match_results)
+        series_losses = total_series - series_wins
+        
+        # Calculate mode-specific map records (individual map wins/losses)
         # Hardpoint
         hp_df = team_df[team_df['mode'] == 'Hardpoint']
         hp_total = len(hp_df.groupby(['match_id', 'map_number']).size()) if not hp_df.empty else 0
@@ -647,9 +655,8 @@ def page_player_overview():
         
         # Team header with records
         st.markdown(f"### {team}")
-        st.caption(f"**Match Record: {maps_won}-{maps_lost}** ({total_maps} total maps)")
+        st.caption(f"**Match Record: {series_wins}-{series_losses}** ({total_series} series played)")
         st.caption(f"Hardpoint: **{hp_won}-{hp_lost}** | Search & Destroy: **{snd_won}-{snd_lost}** | Overload: **{overload_won}-{overload_lost}**")
-
         
         # Get players for this team (from roster or from data)
         if team in team_player_map:
