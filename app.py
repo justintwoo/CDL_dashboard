@@ -256,6 +256,20 @@ st.markdown("""
 # DATA LOADING & CACHING
 # ============================================================================
 
+@st.cache_data(ttl=600, show_spinner=False)
+def load_player_images_cached():
+    """
+    Cached version of player images loading.
+    TTL of 600 seconds (10 minutes).
+    """
+    try:
+        import json
+        with open('data/player_images.json', 'r') as f:
+            return json.load(f)
+    except:
+        return {}
+
+
 def show_loading_animation(message="Loading CDL Data", subtext="Please wait while we fetch the latest stats..."):
     """Display an aesthetic loading animation"""
     return st.markdown(f"""
@@ -357,20 +371,23 @@ def load_data(csv_path: str = "data/breakingpoint_cod_stats.csv") -> pd.DataFram
 
 
 # ============================================================================
-# FILTER LOGIC (NO UI - UI added per page)
+# FILTER LOGIC (NO UI - UI added per page) - WITH CACHING
 # ============================================================================
 
-def get_filtered_data(selected_seasons=None, selected_events=None, lan_options=None):
-    """Apply filters to the dataframe without rendering UI."""
-    filtered_df = st.session_state.df.copy()
+@st.cache_data(ttl=300, show_spinner=False)
+def get_filtered_data_cached(df_hash, selected_seasons_tuple, selected_events_tuple, lan_options_tuple):
+    """
+    Cached version of filter operations to avoid recomputing on every page load.
+    Uses tuple parameters for hashability.
+    TTL of 300 seconds (5 minutes) to balance freshness and performance.
+    """
+    df = st.session_state.df
+    filtered_df = df.copy()
     
-    # If no filters provided, use all data
-    if selected_seasons is None:
-        selected_seasons = sorted(st.session_state.df['season'].unique())
-    if selected_events is None:
-        selected_events = sorted(st.session_state.df['event_name'].unique())
-    if lan_options is None:
-        lan_options = ["LAN", "Online"]
+    # Convert tuples back to lists
+    selected_seasons = list(selected_seasons_tuple) if selected_seasons_tuple else []
+    selected_events = list(selected_events_tuple) if selected_events_tuple else []
+    lan_options = list(lan_options_tuple) if lan_options_tuple else []
     
     # Apply season filter
     if selected_seasons:
@@ -393,9 +410,31 @@ def get_filtered_data(selected_seasons=None, selected_events=None, lan_options=N
     return filtered_df
 
 
+def get_filtered_data(selected_seasons=None, selected_events=None, lan_options=None):
+    """Apply filters to the dataframe without rendering UI - uses caching for performance."""
+    # If no filters provided, use all data
+    if selected_seasons is None:
+        selected_seasons = sorted(st.session_state.df['season'].unique())
+    if selected_events is None:
+        selected_events = sorted(st.session_state.df['event_name'].unique())
+    if lan_options is None:
+        lan_options = ["LAN", "Online"]
+    
+    # Create a hash of the dataframe for cache invalidation
+    df_hash = hash(str(st.session_state.df.shape) + str(st.session_state.df.columns.tolist()))
+    
+    # Convert lists to tuples for hashability
+    seasons_tuple = tuple(sorted(selected_seasons)) if selected_seasons else tuple()
+    events_tuple = tuple(sorted(selected_events)) if selected_events else tuple()
+    lan_tuple = tuple(sorted(lan_options)) if lan_options else tuple()
+    
+    return get_filtered_data_cached(df_hash, seasons_tuple, events_tuple, lan_tuple)
+
+
 def render_sidebar_filters():
     """Legacy function - returns all data (filters moved to individual pages)."""
-    return st.session_state.df.copy()
+    # Return reference instead of copy for better performance
+    return st.session_state.df
 
 
 # ============================================================================
@@ -431,7 +470,7 @@ def page_data_overview():
     
     # Load player images
     if 'player_images' not in st.session_state:
-        st.session_state.player_images = load_player_images()
+        st.session_state.player_images = load_player_images_cached()
     
     # Page-level filters for player stats
     st.markdown("**Filters:**")
@@ -719,6 +758,34 @@ def page_data_overview():
 # TEAM DETAIL PAGE
 # ============================================================================
 
+@st.cache_data(ttl=300, show_spinner=False)
+def calculate_map_scores_cached(df_hash, player_name, match_ids_tuple, map_numbers_tuple):
+    """
+    Cached calculation of map scores to avoid recomputing on filter changes.
+    TTL of 300 seconds (5 minutes).
+    """
+    player_df = st.session_state.df[st.session_state.df['player_name'] == player_name]
+    map_scores = {}
+    
+    match_ids = set(match_ids_tuple)
+    map_numbers = set(map_numbers_tuple)
+    
+    for match_id in match_ids:
+        for map_number in map_numbers:
+            map_key = (match_id, map_number)
+            # Get all players' data for this specific map
+            map_data = player_df[(player_df['match_id'] == match_id) & 
+                                (player_df['map_number'] == map_number)]
+            
+            if not map_data.empty:
+                # Calculate team total kills and opponent total kills for this map
+                team_kills = map_data['kills'].sum()
+                team_deaths = map_data['deaths'].sum()
+                map_scores[map_key] = f"{int(team_kills)}-{int(team_deaths)}"
+    
+    return map_scores
+
+
 def page_player_detail(player_name):
     """Display detailed player dashboard with granular match history."""
     
@@ -740,15 +807,9 @@ def page_player_detail(player_name):
     from config import get_player_position
     position = get_player_position(player_name)
     
-    # Load player image
-    try:
-        import json
-        player_images = {}
-        with open('data/player_images.json', 'r') as f:
-            player_images = json.load(f)
-        player_image_url = player_images.get(player_name)
-    except:
-        player_image_url = None
+    # Load player image using cached function
+    player_images = load_player_images_cached()
+    player_image_url = player_images.get(player_name)
     
     # Create aesthetic player header
     if player_image_url:
@@ -842,22 +903,11 @@ def page_player_detail(player_name):
         # Sort by date (most recent first)
         player_df_sorted = player_df_filtered.sort_values(['date', 'match_id', 'map_number'], ascending=[False, False, True])
         
-        # Calculate map scores for each individual map
-        map_scores = {}
-        for _, row in player_df_sorted.iterrows():
-            map_key = (row['match_id'], row['map_number'])
-            if map_key not in map_scores:
-                # Get all players' data for this specific map
-                map_data = player_df[(player_df['match_id'] == row['match_id']) & 
-                                     (player_df['map_number'] == row['map_number'])]
-                
-                # Calculate team total kills and opponent total kills for this map
-                team_kills = map_data['kills'].sum()
-                team_deaths = map_data['deaths'].sum()
-                
-                # Deaths for team = Kills for opponent (in CoD)
-                # Kills for team vs Deaths for team gives us the score
-                map_scores[map_key] = f"{int(team_kills)}-{int(team_deaths)}"
+        # Calculate map scores using cached function
+        df_hash = hash(str(st.session_state.df.shape) + str(st.session_state.df.columns.tolist()))
+        match_ids_tuple = tuple(player_df_sorted['match_id'].unique())
+        map_numbers_tuple = tuple(player_df_sorted['map_number'].unique())
+        map_scores = calculate_map_scores_cached(df_hash, player_name, match_ids_tuple, map_numbers_tuple)
         
         # Team-based color mapping (each team gets a consistent color)
         TEAM_COLORS = {
@@ -1295,6 +1345,67 @@ def page_team_detail(team_name):
 # PAGE 2: PLAYER OVERVIEW
 # ============================================================================
 
+@st.cache_data(ttl=300, show_spinner=False)
+def calculate_team_records_cached(df_hash, team_name):
+    """
+    Cached calculation of team records to avoid recomputing on each render.
+    TTL of 300 seconds (5 minutes).
+    """
+    team_df = st.session_state.df[st.session_state.df['team_name'] == team_name]
+    
+    # Calculate series record
+    matches = team_df.groupby('match_id')
+    series_wins = sum(match['won_map'].iloc[0] for _, match in matches if not match.empty)
+    series_losses = len(matches) - series_wins
+    
+    # Calculate mode-specific map records
+    records = {'series_wins': series_wins, 'series_losses': series_losses}
+    
+    for mode_name, mode_label in [('Hardpoint', 'hp'), ('Search & Destroy', 'snd'), ('Overload', 'overload')]:
+        mode_df = team_df[team_df['mode'] == mode_name]
+        total = len(mode_df.groupby(['match_id', 'map_number']).size()) if not mode_df.empty else 0
+        won = len(mode_df[mode_df['won_map'] == True].groupby(['match_id', 'map_number']).size()) if not mode_df.empty else 0
+        records[f'{mode_label}_total'] = total
+        records[f'{mode_label}_won'] = won
+        records[f'{mode_label}_lost'] = total - won
+    
+    return records
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def calculate_player_stats_cached(df_hash, player_name, team_name, filter_type):
+    """
+    Cached calculation of player statistics to avoid recomputing.
+    filter_type: 'all', 'wins', or 'losses'
+    TTL of 300 seconds (5 minutes).
+    """
+    df = st.session_state.df
+    player_data = df[(df['player_name'] == player_name) & (df['team_name'] == team_name)]
+    
+    # Apply filter
+    if filter_type == 'wins':
+        player_data = player_data[player_data['won_map'] == True]
+    elif filter_type == 'losses':
+        player_data = player_data[player_data['won_map'] == False]
+    
+    if player_data.empty:
+        return None
+    
+    # Calculate stats by mode
+    stats = {}
+    for mode in ['Hardpoint', 'Search & Destroy', 'Overload']:
+        mode_data = player_data[player_data['mode'] == mode]
+        if not mode_data.empty:
+            stats[mode] = {
+                'kills': round(mode_data['kills'].mean(), 1),
+                'deaths': round(mode_data['deaths'].mean(), 1),
+                'kd': round(mode_data['kills'].mean() / mode_data['deaths'].mean(), 2) if mode_data['deaths'].mean() > 0 else 0,
+                'damage': round(mode_data['damage'].mean(), 0)
+            }
+    
+    return stats
+
+
 def page_player_overview():
     """Display team-organized player statistics across all game modes."""
     st.markdown('<div class="title-section"><h2>👤 Player Overview</h2></div>', 
@@ -1312,14 +1423,8 @@ def page_player_overview():
     
     filtered_df = render_sidebar_filters()
     
-    # Load player images
-    import json
-    player_images = {}
-    try:
-        with open('data/player_images.json', 'r') as f:
-            player_images = json.load(f)
-    except:
-        st.warning("Player images not found. Displaying without images.")
+    # Load player images using cached function
+    player_images = load_player_images_cached()
     
     # Use all available data (maps 1-5) for more accurate mode averages
     maps_df = filtered_df.copy()
