@@ -2689,52 +2689,18 @@ def page_slip_creator():
     
     st.markdown("""
     **Build your betting slips like PrizePicks!**  
-    Select player props (Over/Under), add them to your slip, and see potential payouts.
+    Select an upcoming match, then pick player props (Over/Under) to add to your slip.
     """)
     
-    # Try to load betting lines from database
-    from database import load_betting_lines, save_slip
-    
-    betting_lines_df = load_betting_lines()
-    
-    if betting_lines_df is None or betting_lines_df.empty:
-        st.warning("""
-        ⚠️ **No betting lines available**
-        
-        Betting lines are scraped from Breaking Point when matches are announced.  
-        Check back closer to match day when lines are posted!
-        
-        _Note: This is a demo feature. No actual betting occurs._
-        """)
-        
-        # Show demo/mock data for testing
-        st.info("💡 **Demo Mode**: Showing sample data for testing")
-        
-        # Create mock data
-        mock_data = []
-        players = ['Shotzzy', 'Dashy', 'Simp', 'aBeZy', 'Insight', 'CleanX']
-        stat_types = ['Kills', 'Deaths', 'Damage', 'K/D']
-        maps = ['Map 1', 'Map 2', 'Map 3', 'Maps 1-3']
-        
-        for i, player in enumerate(players):
-            for stat in stat_types:
-                line_val = 15 + i * 2 if stat == 'Kills' else (10 + i if stat == 'Deaths' else (2500 + i * 100 if stat == 'Damage' else 1.2 + i * 0.1))
-                mock_data.append({
-                    'id': i * 100 + len(mock_data),
-                    'match_id': 'demo_match_1',
-                    'player_name': player,
-                    'team_name': 'OpTic Texas' if i < 2 else ('FaZe Vegas' if i < 4 else 'Toronto KOI'),
-                    'stat_type': stat,
-                    'line_value': line_val,
-                    'map_scope': maps[i % len(maps)],
-                    'map_number': (i % 3) + 1 if 'Map 1-3' not in maps[i % len(maps)] else None,
-                })
-        
-        betting_lines_df = pd.DataFrame(mock_data)
-    
-    # Initialize session state for slip
+    # Initialize session state
     if 'slip_picks' not in st.session_state:
         st.session_state.slip_picks = []
+    if 'selected_match_id' not in st.session_state:
+        st.session_state.selected_match_id = None
+    
+    # Try to load betting lines and upcoming matches
+    from database import load_betting_lines, save_slip
+    from scrape_breakingpoint import fetch_upcoming_matches
     
     # Sidebar for current slip
     with st.sidebar:
@@ -2788,6 +2754,8 @@ def page_slip_creator():
                     slip_id = save_slip(slip_data, picks_to_save)
                     if slip_id:
                         st.success(f"✅ Slip saved! ID: {slip_id}")
+                        st.session_state.slip_picks = []
+                        st.rerun()
                     else:
                         st.warning("⚠️ Could not save slip (database unavailable)")
             
@@ -2796,79 +2764,215 @@ def page_slip_creator():
                     st.session_state.slip_picks = []
                     st.rerun()
     
-    # Main content - Available props
-    st.markdown("### 📊 Available Player Props")
+    # Main content - Show upcoming matches first
+    st.markdown("### 🎮 Select a Match")
     
-    # Filters
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        selected_map = st.selectbox(
-            "Map Scope",
-            options=['All'] + list(betting_lines_df['map_scope'].unique())
-        )
+    # Fetch upcoming matches
+    upcoming_df = fetch_upcoming_matches()
     
-    with col2:
-        selected_stat = st.selectbox(
-            "Stat Type",
-            options=['All'] + list(betting_lines_df['stat_type'].unique())
-        )
+    # Check if we have betting lines
+    betting_lines_df = load_betting_lines()
     
-    with col3:
-        search_player = st.text_input("Search Player", "")
+    # Generate demo data if no real data
+    if betting_lines_df is None or betting_lines_df.empty:
+        st.info("💡 **Demo Mode**: Showing sample data for testing")
+        
+        # Create mock upcoming matches
+        mock_matches = []
+        teams = [
+            ('OpTic Texas', 'FaZe Vegas'),
+            ('Toronto KOI', 'Boston Breach'),
+            ('G2 Minnesota', 'Paris Gentle Mates'),
+        ]
+        
+        for i, (team1, team2) in enumerate(teams):
+            mock_matches.append({
+                'match_id': f'demo_match_{i+1}',
+                'team_1': team1,
+                'team_2': team2,
+                'datetime': datetime.now() + timedelta(days=i+1),
+                'event_name': 'CDL Major 1 Qualifier',
+                'best_of': 5,
+                'status': 'upcoming'
+            })
+        
+        upcoming_df = pd.DataFrame(mock_matches)
+        
+        # Create mock betting lines for demo matches
+        mock_data = []
+        players_by_team = {
+            'OpTic Texas': ['Shotzzy', 'Dashy'],
+            'FaZe Vegas': ['Simp', 'aBeZy'],
+            'Toronto KOI': ['Insight', 'CleanX'],
+            'Boston Breach': ['Cammy', 'Nastie'],
+            'G2 Minnesota': ['Skyz', 'Mamba'],
+            'Paris Gentle Mates': ['Ghosty', 'Envoy'],
+        }
+        
+        stat_types = ['Kills', 'K/D']
+        map_scopes = ['Map 1', 'Map 2', 'Map 3', 'Maps 1-3']
+        
+        line_id = 1
+        for match_idx, (team1, team2) in enumerate(teams):
+            match_id = f'demo_match_{match_idx+1}'
+            all_players = players_by_team[team1] + players_by_team[team2]
+            
+            for player_idx, player in enumerate(all_players):
+                team = team1 if player in players_by_team[team1] else team2
+                
+                for stat in stat_types:
+                    for map_scope in map_scopes:
+                        if stat == 'Kills':
+                            base_line = 18 + player_idx * 2
+                        else:  # K/D
+                            base_line = 1.0 + player_idx * 0.15
+                        
+                        # Adjust for map scope
+                        if 'Maps 1-3' in map_scope:
+                            line_val = base_line * 3 if stat == 'Kills' else base_line
+                        else:
+                            line_val = base_line
+                        
+                        map_num = None
+                        if 'Map 1' in map_scope and 'Maps' not in map_scope:
+                            map_num = 1
+                        elif 'Map 2' in map_scope:
+                            map_num = 2
+                        elif 'Map 3' in map_scope:
+                            map_num = 3
+                        
+                        mock_data.append({
+                            'id': line_id,
+                            'match_id': match_id,
+                            'player_name': player,
+                            'team_name': team,
+                            'stat_type': stat,
+                            'line_value': round(line_val, 1),
+                            'map_scope': map_scope,
+                            'map_number': map_num,
+                        })
+                        line_id += 1
+        
+        betting_lines_df = pd.DataFrame(mock_data)
     
-    # Apply filters
-    filtered_df = betting_lines_df.copy()
-    if selected_map != 'All':
-        filtered_df = filtered_df[filtered_df['map_scope'] == selected_map]
-    if selected_stat != 'All':
-        filtered_df = filtered_df[filtered_df['stat_type'] == selected_stat]
-    if search_player:
-        filtered_df = filtered_df[filtered_df['player_name'].str.contains(search_player, case=False)]
+    if upcoming_df is None or upcoming_df.empty:
+        st.warning("⚠️ No upcoming matches found. Check back later!")
+        return
     
-    # Display props in a grid
-    st.markdown(f"_Showing {len(filtered_df)} props_")
-    
-    for idx, row in filtered_df.iterrows():
-        col1, col2, col3 = st.columns([3, 2, 2])
+    # Display upcoming matches as clickable cards
+    for idx, match in upcoming_df.iterrows():
+        match_id = match['match_id']
+        is_selected = st.session_state.selected_match_id == match_id
+        
+        # Create a card-like container
+        border_color = "#4CAF50" if is_selected else "#e0e0e0"
+        bg_color = "#f0f8f0" if is_selected else "#ffffff"
+        
+        col1, col2, col3 = st.columns([3, 1, 1])
         
         with col1:
-            st.markdown(f"**{row['player_name']}** ({row['team_name']})")
-            st.caption(f"{row['stat_type']} • {row['map_scope']}")
+            if st.button(
+                f"{'✓ ' if is_selected else ''}{match['team_1']} vs {match['team_2']}",
+                key=f"match_btn_{match_id}",
+                use_container_width=True,
+                type="primary" if is_selected else "secondary"
+            ):
+                st.session_state.selected_match_id = match_id
+                st.rerun()
         
         with col2:
-            st.metric("Line", f"{row['line_value']}")
+            st.caption(match['datetime'].strftime('%b %d, %I:%M%p') if hasattr(match['datetime'], 'strftime') else 'TBD')
         
         with col3:
-            pick_col1, pick_col2 = st.columns(2)
-            with pick_col1:
-                if st.button("🔺 Over", key=f"over_{row['id']}"):
-                    pick = {
-                        'line_id': row['id'],
-                        'player_name': row['player_name'],
-                        'team_name': row['team_name'],
-                        'stat_type': row['stat_type'],
-                        'line_value': row['line_value'],
-                        'map_scope': row['map_scope'],
-                        'pick_type': 'over'
-                    }
-                    st.session_state.slip_picks.append(pick)
-                    st.rerun()
-            
-            with pick_col2:
-                if st.button("🔻 Under", key=f"under_{row['id']}"):
-                    pick = {
-                        'line_id': row['id'],
-                        'player_name': row['player_name'],
-                        'team_name': row['team_name'],
-                        'stat_type': row['stat_type'],
-                        'line_value': row['line_value'],
-                        'map_scope': row['map_scope'],
-                        'pick_type': 'under'
-                    }
-                    st.session_state.slip_picks.append(pick)
-                    st.rerun()
+            # Count available lines for this match
+            if betting_lines_df is not None:
+                lines_count = len(betting_lines_df[betting_lines_df['match_id'] == match_id])
+                st.caption(f"📊 {lines_count} props")
+    
+    st.divider()
+    
+    # Show player props for selected match
+    if st.session_state.selected_match_id:
+        selected_match = upcoming_df[upcoming_df['match_id'] == st.session_state.selected_match_id].iloc[0]
         
-        st.divider()
+        st.markdown(f"### 📊 Player Props: {selected_match['team_1']} vs {selected_match['team_2']}")
+        
+        # Filter betting lines for selected match
+        match_lines = betting_lines_df[betting_lines_df['match_id'] == st.session_state.selected_match_id]
+        
+        if match_lines.empty:
+            st.warning("No betting lines available for this match yet.")
+            return
+        
+        # Filters
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            map_options = ['All'] + sorted(match_lines['map_scope'].unique().tolist())
+            selected_map = st.selectbox("Map Scope", options=map_options, key="map_filter")
+        
+        with col2:
+            stat_options = ['All'] + sorted(match_lines['stat_type'].unique().tolist())
+            selected_stat = st.selectbox("Stat Type", options=stat_options, key="stat_filter")
+        
+        with col3:
+            search_player = st.text_input("Search Player", "", key="player_search")
+        
+        # Apply filters
+        filtered_lines = match_lines.copy()
+        if selected_map != 'All':
+            filtered_lines = filtered_lines[filtered_lines['map_scope'] == selected_map]
+        if selected_stat != 'All':
+            filtered_lines = filtered_lines[filtered_lines['stat_type'] == selected_stat]
+        if search_player:
+            filtered_lines = filtered_lines[filtered_lines['player_name'].str.contains(search_player, case=False)]
+        
+        # Display props
+        st.markdown(f"_Showing {len(filtered_lines)} props_")
+        
+        for idx, row in filtered_lines.iterrows():
+            col1, col2, col3 = st.columns([3, 2, 2])
+            
+            with col1:
+                st.markdown(f"**{row['player_name']}** ({row['team_name']})")
+                st.caption(f"{row['stat_type']} • {row['map_scope']}")
+            
+            with col2:
+                st.metric("Line", f"{row['line_value']}")
+            
+            with col3:
+                pick_col1, pick_col2 = st.columns(2)
+                with pick_col1:
+                    if st.button("� Over", key=f"over_{row['id']}"):
+                        pick = {
+                            'line_id': row['id'],
+                            'player_name': row['player_name'],
+                            'team_name': row['team_name'],
+                            'stat_type': row['stat_type'],
+                            'line_value': row['line_value'],
+                            'map_scope': row['map_scope'],
+                            'pick_type': 'over'
+                        }
+                        st.session_state.slip_picks.append(pick)
+                        st.rerun()
+                
+                with pick_col2:
+                    if st.button("🔻 Under", key=f"under_{row['id']}"):
+                        pick = {
+                            'line_id': row['id'],
+                            'player_name': row['player_name'],
+                            'team_name': row['team_name'],
+                            'stat_type': row['stat_type'],
+                            'line_value': row['line_value'],
+                            'map_scope': row['map_scope'],
+                            'pick_type': 'under'
+                        }
+                        st.session_state.slip_picks.append(pick)
+                        st.rerun()
+            
+            st.divider()
+    else:
+        st.info("👆 Select a match above to view available player props")
 
 
 def page_slip_tracker():
