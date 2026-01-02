@@ -705,12 +705,12 @@ def page_map_mode_breakdown():
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        # Position filter - multiselect with default SMG
+        # Position filter - multiselect with default all positions
         available_positions = sorted(filtered_df['position'].unique().tolist())
         selected_positions = st.multiselect(
             "Position",
             available_positions,
-            default=['SMG'] if 'SMG' in available_positions else available_positions[:1],
+            default=available_positions,  # Default to all positions
             key="map_mode_positions",
             help="Select one or more positions to compare (AR, SMG, Flex)"
         )
