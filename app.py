@@ -2505,25 +2505,28 @@ def main():
         
         st.divider()
         
-        # Page navigation - hide if on detail page
-        if 'current_team' not in st.session_state and 'current_player' not in st.session_state:
-            pages = {
-                "👤 Player Overview": page_player_overview,
-                "🗺️ Map/Mode Breakdown": page_map_mode_breakdown,
-                "⚔️ Head-to-Head": page_vs_opponents,
-                "📅 Upcoming Matches": page_upcoming_matches,
-            }
-            
+        # Page navigation - ALWAYS show
+        pages = {
+            "👤 Player Overview": page_player_overview,
+            "🗺️ Map/Mode Breakdown": page_map_mode_breakdown,
+            "⚔️ Head-to-Head": page_vs_opponents,
+            "📅 Upcoming Matches": page_upcoming_matches,
+        }
+        
+        # Determine which page to show
+        if 'current_team' in st.session_state or 'current_player' in st.session_state:
+            # On detail page, show Player Overview page (which handles detail routing)
+            selected_page = "👤 Player Overview"
+        else:
+            # Normal navigation
             selected_page = st.sidebar.radio(
                 "📍 Navigation",
                 list(pages.keys()),
+                key="main_navigation"
             )
-            
-            # Display selected page
-            pages[selected_page]()
-        else:
-            # On detail page, just show Player Overview
-            page_player_overview()
+        
+        # Display selected page
+        pages[selected_page]()
     
     # Footer
     st.divider()
