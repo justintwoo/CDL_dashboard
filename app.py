@@ -196,6 +196,59 @@ st.markdown("""
         margin-left: auto;
         margin-right: auto;
     }
+    .player-detail-header {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        margin: 20px 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .player-detail-image {
+        flex-shrink: 0;
+    }
+    .player-detail-image img {
+        width: 180px;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 4px solid white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .player-detail-info {
+        flex-grow: 1;
+        color: white;
+    }
+    .player-detail-name {
+        font-size: 36px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .player-detail-meta {
+        display: flex;
+        gap: 30px;
+        margin-top: 15px;
+    }
+    .player-detail-stat {
+        background: rgba(255,255,255,0.2);
+        padding: 12px 20px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+    }
+    .player-detail-stat-label {
+        font-size: 12px;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .player-detail-stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 5px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -304,45 +357,26 @@ def load_data(csv_path: str = "data/breakingpoint_cod_stats.csv") -> pd.DataFram
 
 
 # ============================================================================
-# SIDEBAR FILTERS
+# FILTER LOGIC (NO UI - UI added per page)
 # ============================================================================
 
-def render_sidebar_filters():
-    """Render common filters in the sidebar."""
-    st.sidebar.markdown("### 🎮 Filters")
-    
-    # Season filter
-    seasons = sorted(st.session_state.df['season'].unique())
-    selected_seasons = st.sidebar.multiselect(
-        "Seasons",
-        seasons,
-        default=seasons,
-        key="season_filter",
-    )
-    
-    # Event filter
-    events = sorted(st.session_state.df['event_name'].unique())
-    selected_events = st.sidebar.multiselect(
-        "Events",
-        events,
-        default=events,
-        key="event_filter",
-    )
-    
-    # LAN vs Online filter
-    lan_options = st.sidebar.multiselect(
-        "LAN / Online",
-        ["LAN", "Online"],
-        default=["LAN", "Online"],
-        key="lan_filter",
-    )
-    
-    # Apply filters
+def get_filtered_data(selected_seasons=None, selected_events=None, lan_options=None):
+    """Apply filters to the dataframe without rendering UI."""
     filtered_df = st.session_state.df.copy()
     
+    # If no filters provided, use all data
+    if selected_seasons is None:
+        selected_seasons = sorted(st.session_state.df['season'].unique())
+    if selected_events is None:
+        selected_events = sorted(st.session_state.df['event_name'].unique())
+    if lan_options is None:
+        lan_options = ["LAN", "Online"]
+    
+    # Apply season filter
     if selected_seasons:
         filtered_df = filtered_df[filtered_df['season'].isin(selected_seasons)]
     
+    # Apply event filter
     if selected_events:
         filtered_df = filtered_df[filtered_df['event_name'].isin(selected_events)]
     
@@ -357,6 +391,11 @@ def render_sidebar_filters():
         filtered_df = filtered_df[filtered_df['is_lan'].isin(lan_bool_map.keys())]
     
     return filtered_df
+
+
+def render_sidebar_filters():
+    """Legacy function - returns all data (filters moved to individual pages)."""
+    return st.session_state.df.copy()
 
 
 # ============================================================================
@@ -682,16 +721,12 @@ def page_data_overview():
 
 def page_player_detail(player_name):
     """Display detailed player dashboard with granular match history."""
-    st.markdown(f'<div class="title-section"><h2>🎮 {player_name}</h2></div>', 
-                unsafe_allow_html=True)
     
     # Back button
-    col1, col2 = st.columns([1, 5])
-    with col1:
-        if st.button("← Back"):
-            if 'current_player' in st.session_state:
-                del st.session_state.current_player
-            st.rerun()
+    if st.button("← Back to Player Overview"):
+        if 'current_player' in st.session_state:
+            del st.session_state.current_player
+        st.rerun()
     
     filtered_df = render_sidebar_filters()
     player_df = filtered_df[filtered_df['player_name'] == player_name]
@@ -705,14 +740,67 @@ def page_player_detail(player_name):
     from config import get_player_position
     position = get_player_position(player_name)
     
-    # Player info header
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Team", team_name)
-    with col2:
-        st.metric("Position", position)
-    with col3:
-        st.metric("Maps Played", len(player_df))
+    # Load player image
+    try:
+        import json
+        player_images = {}
+        with open('data/player_images.json', 'r') as f:
+            player_images = json.load(f)
+        player_image_url = player_images.get(player_name)
+    except:
+        player_image_url = None
+    
+    # Create aesthetic player header
+    if player_image_url:
+        header_html = f'''
+        <div class="player-detail-header">
+            <div class="player-detail-image">
+                <img src="{player_image_url}" alt="{player_name}">
+            </div>
+            <div class="player-detail-info">
+                <div class="player-detail-name">🎮 {player_name}</div>
+                <div class="player-detail-meta">
+                    <div class="player-detail-stat">
+                        <div class="player-detail-stat-label">Team</div>
+                        <div class="player-detail-stat-value">{team_name}</div>
+                    </div>
+                    <div class="player-detail-stat">
+                        <div class="player-detail-stat-label">Position</div>
+                        <div class="player-detail-stat-value">{position}</div>
+                    </div>
+                    <div class="player-detail-stat">
+                        <div class="player-detail-stat-label">Maps Played</div>
+                        <div class="player-detail-stat-value">{len(player_df)}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        '''
+    else:
+        # Fallback header without image
+        header_html = f'''
+        <div class="player-detail-header">
+            <div class="player-detail-info">
+                <div class="player-detail-name">🎮 {player_name}</div>
+                <div class="player-detail-meta">
+                    <div class="player-detail-stat">
+                        <div class="player-detail-stat-label">Team</div>
+                        <div class="player-detail-stat-value">{team_name}</div>
+                    </div>
+                    <div class="player-detail-stat">
+                        <div class="player-detail-stat-label">Position</div>
+                        <div class="player-detail-stat-value">{position}</div>
+                    </div>
+                    <div class="player-detail-stat">
+                        <div class="player-detail-stat-label">Maps Played</div>
+                        <div class="player-detail-stat-value">{len(player_df)}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        '''
+    
+    st.markdown(header_html, unsafe_allow_html=True)
     
     st.divider()
     
@@ -1396,15 +1484,48 @@ def page_map_mode_breakdown():
     st.markdown('<div class="title-section"><h2>🗺️ Per-Map / Per-Mode Breakdown</h2></div>', 
                 unsafe_allow_html=True)
     
-    filtered_df = render_sidebar_filters()
+    # Data Filters Section
+    st.markdown("### 🎮 Data Filters")
+    filter_col1, filter_col2, filter_col3 = st.columns(3)
+    
+    with filter_col1:
+        seasons = sorted(st.session_state.df['season'].unique())
+        selected_seasons = st.multiselect(
+            "Seasons",
+            seasons,
+            default=seasons,
+            key="breakdown_season_filter",
+        )
+    
+    with filter_col2:
+        events = sorted(st.session_state.df['event_name'].unique())
+        selected_events = st.multiselect(
+            "Events",
+            events,
+            default=events,
+            key="breakdown_event_filter",
+        )
+    
+    with filter_col3:
+        lan_options = st.multiselect(
+            "LAN / Online",
+            ["LAN", "Online"],
+            default=["LAN", "Online"],
+            key="breakdown_lan_filter",
+        )
+    
+    # Apply data filters
+    filtered_df = get_filtered_data(selected_seasons, selected_events, lan_options)
     
     # Check if position data is available
     if 'position' not in filtered_df.columns:
         st.warning("⚠️ Position data not available in the dataset.")
         return
     
-    # Main area filters
-    st.markdown("### Filters")
+    st.divider()
+    
+    # Analysis Filters Section
+    st.markdown("### 📊 Analysis Filters")
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -2535,7 +2656,7 @@ def main():
         
         st.divider()
         
-        # Page navigation - ALWAYS show
+        # Page navigation - ALWAYS show in sidebar
         pages = {
             "👤 Player Overview": page_player_overview,
             "🗺️ Map/Mode Breakdown": page_map_mode_breakdown,
@@ -2543,20 +2664,20 @@ def main():
             "📅 Upcoming Matches": page_upcoming_matches,
         }
         
+        # Always show navigation in sidebar
+        selected_page = st.sidebar.radio(
+            "📍 Navigation",
+            list(pages.keys()),
+            key="main_navigation"
+        )
+        
         # Determine which page to show
         if 'current_team' in st.session_state or 'current_player' in st.session_state:
-            # On detail page, show Player Overview page (which handles detail routing)
-            selected_page = "👤 Player Overview"
+            # On detail page, ignore navigation selection and show Player Overview (which handles detail routing)
+            pages["👤 Player Overview"]()
         else:
-            # Normal navigation
-            selected_page = st.sidebar.radio(
-                "📍 Navigation",
-                list(pages.keys()),
-                key="main_navigation"
-            )
-        
-        # Display selected page
-        pages[selected_page]()
+            # Normal navigation - display selected page
+            pages[selected_page]()
     
     # Footer
     st.divider()
