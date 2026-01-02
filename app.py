@@ -576,7 +576,7 @@ def page_data_overview():
 # ============================================================================
 
 def page_player_overview():
-    """Display team-organized player statistics across all maps 1-3."""
+    """Display team-organized player statistics across all game modes."""
     st.markdown('<div class="title-section"><h2>👤 Player Overview</h2></div>', 
                 unsafe_allow_html=True)
     
@@ -591,11 +591,11 @@ def page_player_overview():
     except:
         st.warning("Player images not found. Displaying without images.")
     
-    # Filter to only maps 1, 2, 3 (all game modes)
-    maps_df = filtered_df[filtered_df['map_number'].isin([1, 2, 3])].copy()
+    # Use all available data (maps 1-5) for more accurate mode averages
+    maps_df = filtered_df.copy()
     
     if maps_df.empty:
-        st.info("No data available for maps 1-3.")
+        st.info("No data available.")
         return
     
     # Get unique teams
@@ -621,13 +621,14 @@ def page_player_overview():
     for team in teams:
         team_df = maps_df[maps_df['team_name'] == team]
         
-        # Calculate team record across all maps 1-3 (count unique match_id + map_number combinations won)
+        # Calculate team record across all maps (count unique match_id + map_number combinations won)
         total_maps = len(team_df.groupby(['match_id', 'map_number']).size())
         maps_won = len(team_df[team_df['won_map'] == True].groupby(['match_id', 'map_number']).size())
         maps_lost = total_maps - maps_won
         
         # Team header with record
         st.markdown(f"### {team}")
+        st.caption(f"Record: **{maps_won}-{maps_lost}** ({total_maps} total maps played)")
         st.caption(f"Record: **{maps_won}-{maps_lost}** ({total_maps} maps played across Maps 1-3)")
         
         # Get players for this team (from roster or from data)
@@ -652,31 +653,28 @@ def page_player_overview():
                 else:
                     st.markdown(f"**{player}**")
                 
-                # Calculate stats for maps 1, 2, 3 (all modes)
-                # Map 1 only (Hardpoint)
-                map1_data = player_data[player_data['map_number'] == 1]
-                avg_kills_map1 = map1_data['kills'].mean() if not map1_data.empty else 0
-                map1_mode = map1_data['mode'].iloc[0] if not map1_data.empty else 'N/A'
+                # Calculate stats using ALL available data for each mode
+                # Hardpoint (Maps 1 & 4)
+                hp_data = player_data[player_data['mode'] == 'Hardpoint']
+                avg_kills_hp = hp_data['kills'].mean() if not hp_data.empty else 0
                 
-                # Map 2 only (Search & Destroy)
-                map2_data = player_data[player_data['map_number'] == 2]
-                avg_kills_map2 = map2_data['kills'].mean() if not map2_data.empty else 0
-                map2_mode = map2_data['mode'].iloc[0] if not map2_data.empty else 'N/A'
+                # Search & Destroy (Maps 2 & 5)
+                snd_data = player_data[player_data['mode'] == 'Search & Destroy']
+                avg_kills_snd = snd_data['kills'].mean() if not snd_data.empty else 0
                 
-                # Map 3 only (Overload)
-                map3_data = player_data[player_data['map_number'] == 3]
-                avg_kills_map3 = map3_data['kills'].mean() if not map3_data.empty else 0
-                map3_mode = map3_data['mode'].iloc[0] if not map3_data.empty else 'N/A'
+                # Overload (Map 3)
+                overload_data = player_data[player_data['mode'] == 'Overload']
+                avg_kills_overload = overload_data['kills'].mean() if not overload_data.empty else 0
                 
-                # Sum of averages for each mode (more accurate representation)
-                avg_kills_total = avg_kills_map1 + avg_kills_map2 + avg_kills_map3
+                # Sum of mode averages (using all available data)
+                avg_kills_total = avg_kills_hp + avg_kills_snd + avg_kills_overload
                 
                 # Display player name and stats
                 st.markdown(f"**{player}**")
                 st.metric("Avg Map 1-3 Kills", f"{avg_kills_total:.1f}")
-                st.caption(f"Map 1 ({map1_mode}): **{avg_kills_map1:.1f}**")
-                st.caption(f"Map 2 ({map2_mode}): **{avg_kills_map2:.1f}**")
-                st.caption(f"Map 3 ({map3_mode}): **{avg_kills_map3:.1f}**")
+                st.caption(f"Hardpoint (Maps 1,4): **{avg_kills_hp:.1f}**")
+                st.caption(f"Search & Destroy (Maps 2,5): **{avg_kills_snd:.1f}**")
+                st.caption(f"Overload (Map 3): **{avg_kills_overload:.1f}**")
         
         st.divider()
 
