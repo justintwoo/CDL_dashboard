@@ -576,110 +576,102 @@ def page_data_overview():
 # ============================================================================
 
 def page_player_overview():
-    """Display overall player statistics."""
+    """Display team-organized player statistics with Hardpoint averages."""
     st.markdown('<div class="title-section"><h2>👤 Player Overview</h2></div>', 
                 unsafe_allow_html=True)
     
     filtered_df = render_sidebar_filters()
     
-    # Sidebar player selection
-    st.sidebar.markdown("### Player Selection")
-    all_players = sorted(filtered_df['player_name'].unique())
-    selected_players = st.sidebar.multiselect(
-        "Select Players",
-        all_players,
-        default=all_players[:2] if len(all_players) > 0 else [],
-    )
+    # Load player images
+    import json
+    player_images = {}
+    try:
+        with open('data/player_images.json', 'r') as f:
+            player_images = json.load(f)
+    except:
+        st.warning("Player images not found. Displaying without images.")
     
-    if not selected_players:
-        st.warning("Please select at least one player.")
+    # Filter to Hardpoint only for map 1-3 stats
+    hp_df = filtered_df[filtered_df['mode'] == 'Hardpoint'].copy()
+    
+    if hp_df.empty:
+        st.info("No Hardpoint data available.")
         return
     
-    # Display stats for each player
-    for player in selected_players:
-        st.markdown(f"### {player}")
+    # Get unique teams
+    teams = sorted(hp_df['team_name'].unique())
+    
+    # Create team player mapping from config
+    team_player_map = {
+        'Boston Breach': ['Cammy', 'Snoopy', 'Purj', 'Nastie'],
+        'Carolina Royal Ravens': ['SlasheR', 'Nero', 'Lurqxx', 'Craze'],
+        'Cloud9 New York': ['Mack', 'Afro', 'Beans', 'Vivid'],
+        'FaZe Vegas': ['Drazah', 'Abuzah', '04', 'Simp'],
+        'G2 Minnesota': ['Skyz', 'Estreal', 'Kremp', 'Mamba'],
+        'Los Angeles Thieves': ['aBeZy', 'HyDra', 'Scrap', 'Kenny'],
+        'Miami Heretics': ['MettalZ', 'Traixx', 'SupeR', 'RenKoR'],
+        'OpTic Texas': ['Shotzzy', 'Dashy', 'Huke', 'Mercules'],
+        'Paris Gentle Mates': ['Envoy', 'Ghosty', 'Neptune', 'Sib'],
+        'Riyadh Falcons': ['Cellium', 'Pred', 'Exnid', 'KiSMET'],
+        'Toronto KOI': ['ReeaL', 'CleanX', 'JoeDeceives', 'Insight'],
+        'Vancouver Surge': ['Abe', 'Gwinn', 'Lunarz', 'Lqgend'],
+    }
+    
+    # Display each team
+    for team in teams:
+        team_df = hp_df[hp_df['team_name'] == team]
         
-        player_df = filtered_df[filtered_df['player_name'] == player]
+        # Calculate team record (count unique maps won vs lost)
+        total_maps = len(team_df['map_number'].unique())
+        maps_won = len(team_df[team_df['won_map'] == True]['map_number'].unique())
+        maps_lost = total_maps - maps_won
         
-        # Overall stats
-        overall_stats = get_player_overall_stats(
-            player_df, player
-        )
+        # Team header with record
+        st.markdown(f"### {team}")
+        st.caption(f"Record: **{maps_won}-{maps_lost}** ({total_maps} Hardpoint maps played)")
         
-        if overall_stats:
-            col1, col2, col3, col4, col5 = st.columns(5)
+        # Get players for this team (from roster or from data)
+        if team in team_player_map:
+            players = team_player_map[team]
+        else:
+            players = sorted(team_df['player_name'].unique())
+        
+        # Create columns for each player (max 4 per row)
+        cols = st.columns(4)
+        
+        for idx, player in enumerate(players):
+            player_data = team_df[team_df['player_name'] == player]
             
-            with col1:
-                st.metric("Maps Played", overall_stats['maps_played'])
-            with col2:
-                st.metric("Avg Kills", overall_stats['avg_kills'])
-            with col3:
-                st.metric("Avg Deaths", overall_stats['avg_deaths'])
-            with col4:
-                st.metric("K/D Ratio", overall_stats['kd_ratio'])
-            with col5:
-                if overall_stats['avg_rating']:
-                    st.metric("Avg Rating", overall_stats['avg_rating'])
-        
-        # Mode breakdown
-        st.markdown("#### Mode Breakdown")
-        mode_stats = get_player_mode_stats(player_df, player)
-        
-        if not mode_stats.empty:
-            # Display table
-            st.dataframe(
-                mode_stats[[
-                    'Mode', 'Avg_Kills', 'Avg_Deaths', 'KD_Ratio',
-                    'Maps_Played', 'Win_Rate'
-                ]],
-                use_container_width=True,
-                hide_index=True,
-            )
+            if player_data.empty:
+                continue
             
-            # Charts
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                fig_kills = px.bar(
-                    mode_stats,
-                    x='Mode',
-                    y='Avg_Kills',
-                    color='Avg_Kills',
-                    color_continuous_scale='Blues',
-                    title="Avg Kills by Mode",
-                )
-                fig_kills.update_layout(height=350, showlegend=False)
-                st.plotly_chart(fig_kills, use_container_width=True)
-            
-            with col2:
-                fig_kd = px.bar(
-                    mode_stats,
-                    x='Mode',
-                    y='KD_Ratio',
-                    color='KD_Ratio',
-                    color_continuous_scale='Reds',
-                    title="K/D Ratio by Mode",
-                )
-                fig_kd.update_layout(height=350, showlegend=False)
-                st.plotly_chart(fig_kd, use_container_width=True)
-        
-        # Timeline
-        st.markdown("#### Performance Over Time")
-        timeline_df = get_player_timeline(player_df, player)
-        
-        if not timeline_df.empty:
-            fig_timeline = px.line(
-                timeline_df,
-                x='map_index',
-                y='kills',
-                markers=True,
-                hover_data=['date', 'mode', 'map_name', 'deaths'],
-                title="Kills Timeline",
-            )
-            fig_timeline.update_xaxes(title_text="Map #")
-            fig_timeline.update_yaxes(title_text="Kills")
-            fig_timeline.update_layout(height=350, hovermode='x unified')
-            st.plotly_chart(fig_timeline, use_container_width=True)
+            with cols[idx % 4]:
+                # Player image
+                if player in player_images:
+                    st.image(player_images[player], width=150, use_container_width=False)
+                else:
+                    st.markdown(f"**{player}**")
+                
+                # Calculate stats
+                # Map 1-3 average (all maps)
+                avg_kills_all = player_data['kills'].mean()
+                
+                # Map 1 only
+                map1_data = player_data[player_data['map_number'] == 1]
+                avg_kills_map1 = map1_data['kills'].mean() if not map1_data.empty else 0
+                
+                # Map 2 only
+                map2_data = player_data[player_data['map_number'] == 2]
+                avg_kills_map2 = map2_data['kills'].mean() if not map2_data.empty else 0
+                
+                # Map 3 only
+                map3_data = player_data[player_data['map_number'] == 3]
+                avg_kills_map3 = map3_data['kills'].mean() if not map3_data.empty else 0
+                
+                # Display player name and stats
+                st.markdown(f"**{player}**")
+                st.metric("Avg Map 1-3 Kills", f"{avg_kills_all:.1f}")
+                st.caption(f"Map 1: **{avg_kills_map1:.1f}** | Map 2: **{avg_kills_map2:.1f}** | Map 3: **{avg_kills_map3:.1f}**")
         
         st.divider()
 
