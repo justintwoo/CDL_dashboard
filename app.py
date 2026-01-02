@@ -1042,6 +1042,19 @@ def page_team_detail(team_name):
                     player_stats = []
                     players = sorted(map_df['player_name'].unique())
                     
+                    # Display player buttons for navigation
+                    st.markdown("**Click player name to view detailed stats:**")
+                    player_cols = st.columns(min(len(players), 4))
+                    for idx, player in enumerate(players):
+                        with player_cols[idx % 4]:
+                            if st.button(f"👤 {player}", key=f"snd_{map_name}_{player}", use_container_width=True):
+                                st.session_state.current_player = player
+                                if 'current_team' in st.session_state:
+                                    del st.session_state.current_team
+                                st.rerun()
+                    
+                    st.markdown("---")
+                    
                     for player in players:
                         player_map_df = map_df[map_df['player_name'] == player]
                         stats = {
@@ -1108,6 +1121,19 @@ def page_team_detail(team_name):
                     # Player stats on this map
                     player_stats = []
                     players = sorted(map_df['player_name'].unique())
+                    
+                    # Display player buttons for navigation
+                    st.markdown("**Click player name to view detailed stats:**")
+                    player_cols = st.columns(min(len(players), 4))
+                    for idx, player in enumerate(players):
+                        with player_cols[idx % 4]:
+                            if st.button(f"👤 {player}", key=f"overload_{map_name}_{player}", use_container_width=True):
+                                st.session_state.current_player = player
+                                if 'current_team' in st.session_state:
+                                    del st.session_state.current_team
+                                st.rerun()
+                    
+                    st.markdown("---")
                     
                     for player in players:
                         player_map_df = map_df[map_df['player_name'] == player]
@@ -1303,8 +1329,11 @@ def page_player_overview():
                 # Sum of mode averages (using all available data)
                 avg_kills_total = avg_kills_hp + avg_kills_snd + avg_kills_overload
                 
-                # Display player name, position, and stats
-                st.markdown(f"**{player}**")
+                # Display player name as clickable button
+                if st.button(f"📊 {player}", key=f"player_overview_{team}_{player}", use_container_width=True):
+                    st.session_state.current_player = player
+                    st.rerun()
+                
                 st.caption(f"Position: {player_position}")
                 st.metric("Avg Map 1-3 Kills", f"{avg_kills_total:.1f}")
                 st.caption(f"Hardpoint (Maps 1,4): **{avg_kills_hp:.1f}**")
