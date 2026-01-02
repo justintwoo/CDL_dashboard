@@ -2881,6 +2881,42 @@ def page_slip_tracker():
     View all your saved slips, see which ones hit, and track your overall record.
     """)
     
+    # Add refresh button at the top
+    col_title, col_refresh = st.columns([5, 1])
+    with col_refresh:
+        if st.button("🔄 Refresh Data", use_container_width=True, key="slip_tracker_refresh"):
+            with st.spinner("Refreshing match data and checking slip results..."):
+                # Refresh the main data
+                from scrape_breakingpoint import update_data
+                from database import load_from_cache, update_slip_results, load_slips as load_slips_db
+                
+                # Update match data
+                updated = update_data(force_refresh=False)
+                
+                if updated:
+                    # Reload data into session state
+                    st.session_state.df = load_from_cache()
+                    
+                    # Check all pending slips
+                    slips_df = load_slips_db()
+                    if slips_df is not None and not slips_df.empty:
+                        pending_slips = slips_df[slips_df['status'] == 'pending']
+                        updated_count = 0
+                        
+                        for _, slip in pending_slips.iterrows():
+                            if st.session_state.df is not None:
+                                if update_slip_results(slip['id'], st.session_state.df):
+                                    updated_count += 1
+                        
+                        if updated_count > 0:
+                            st.success(f"✅ Updated {updated_count} pending slip(s)!")
+                        else:
+                            st.info("ℹ️ No slip updates available yet")
+                    
+                    st.rerun()
+                else:
+                    st.warning("⚠️ Could not refresh data")
+    
     from database import load_slips
     
     slips_df = load_slips()
@@ -2914,6 +2950,24 @@ def page_slip_tracker():
         st.metric("Profit/Loss", f"${profit_loss:.2f}", delta=f"${profit_loss:.2f}")
     
     st.divider()
+    
+    # Check All Results button for pending slips
+    if pending_slips > 0 and st.session_state.get('df') is not None:
+        if st.button(f"🔄 Check All Pending Results ({pending_slips} slips)", use_container_width=False):
+            with st.spinner("Checking results for all pending slips..."):
+                from database import update_slip_results
+                pending_slip_list = slips_df[slips_df['status'] == 'pending']
+                updated_count = 0
+                
+                for _, slip in pending_slip_list.iterrows():
+                    if update_slip_results(slip['id'], st.session_state.df):
+                        updated_count += 1
+                
+                if updated_count > 0:
+                    st.success(f"✅ Checked {updated_count} slip(s)!")
+                    st.rerun()
+                else:
+                    st.info("ℹ️ No matches completed yet for pending slips")
     
     # Filter by status
     status_filter = st.selectbox(
