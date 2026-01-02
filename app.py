@@ -759,13 +759,15 @@ def page_data_overview():
 # ============================================================================
 
 @st.cache_data(ttl=300, show_spinner=False)
-def calculate_map_scores_cached(df_hash, player_name, match_ids_tuple, map_numbers_tuple):
+def calculate_map_scores_cached(df_hash, player_name, match_ids_tuple, map_numbers_tuple, data_version='v2'):
     """
     Cached calculation of map scores using actual game scores (HP points, S&D rounds, Overload caps).
     Falls back to kills-deaths if score data not available.
     TTL of 300 seconds (5 minutes).
+    data_version parameter forces cache invalidation after data refresh.
     """
-    player_df = st.session_state.df[st.session_state.df['player_name'] == player_name]
+    full_df = st.session_state.df
+    player_df = full_df[full_df['player_name'] == player_name]
     map_scores = {}
     
     match_ids = set(match_ids_tuple)
@@ -775,20 +777,24 @@ def calculate_map_scores_cached(df_hash, player_name, match_ids_tuple, map_numbe
         for map_number in map_numbers:
             map_key = (match_id, map_number)
             # Get player's row for this specific map to get team_score and opponent_score
-            map_data = player_df[(player_df['match_id'] == match_id) & 
-                                (player_df['map_number'] == map_number)]
+            player_map_data = player_df[(player_df['match_id'] == match_id) & 
+                                       (player_df['map_number'] == map_number)]
             
-            if not map_data.empty:
+            if not player_map_data.empty:
                 # Try to use actual game scores first
-                first_row = map_data.iloc[0]
+                first_row = player_map_data.iloc[0]
                 if pd.notna(first_row.get('team_score')) and pd.notna(first_row.get('opponent_score')):
                     team_score = int(first_row['team_score'])
                     opponent_score = int(first_row['opponent_score'])
                     map_scores[map_key] = f"{team_score}-{opponent_score}"
                 else:
-                    # Fallback to kills-deaths if score data not available
-                    team_kills = map_data['kills'].sum()
-                    team_deaths = map_data['deaths'].sum()
+                    # Fallback: Get ALL players on this team for this map to calculate team total
+                    team_name = first_row['team_name']
+                    all_team_data = full_df[(full_df['match_id'] == match_id) & 
+                                           (full_df['map_number'] == map_number) &
+                                           (full_df['team_name'] == team_name)]
+                    team_kills = all_team_data['kills'].sum()
+                    team_deaths = all_team_data['deaths'].sum()
                     map_scores[map_key] = f"{int(team_kills)}-{int(team_deaths)}"
     
     return map_scores
