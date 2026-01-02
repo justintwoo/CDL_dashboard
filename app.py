@@ -1564,7 +1564,7 @@ def page_matches():
 
 # PAGE 4: HEAD-TO-HEAD
 def page_vs_opponents():
-    """Display head-to-head stats vs opponents with mode breakdown."""
+    """Display aggregated team head-to-head stats vs opponents with mode breakdown."""
     st.markdown('<div class="title-section"><h2>⚔️ Head-to-Head vs Opponents</h2></div>', 
                 unsafe_allow_html=True)
     
@@ -1597,105 +1597,115 @@ def page_vs_opponents():
         st.info(f"No data available against {selected_opponent}.")
         return
     
-    # Get unique players who played against this team
-    players = sorted(opponent_df['player_name'].unique())
+    # Get team name (assuming all records are from same team in filtered data)
+    your_team = opponent_df['team_name'].iloc[0] if not opponent_df.empty else "Your Team"
     
-    st.markdown(f"### Performance vs {selected_opponent}")
+    st.markdown(f"### {your_team} vs {selected_opponent}")
+    st.markdown("*Aggregated team averages across all players*")
     st.divider()
     
-    # Display stats by mode for each player
-    for player in players:
-        player_df = opponent_df[opponent_df['player_name'] == player]
+    # Calculate aggregated mode-specific stats
+    modes = ['Hardpoint', 'Search & Destroy', 'Overload']
+    mode_stats = []
+    
+    for mode in modes:
+        mode_df = opponent_df[opponent_df['mode'] == mode]
         
-        # Get player's team
-        player_team = player_df['team_name'].iloc[0] if not player_df.empty else "Unknown"
-        
-        # Player header
-        st.markdown(f"#### {player} ({player_team})")
-        
-        # Calculate mode-specific stats
-        modes = ['Hardpoint', 'Search & Destroy', 'Overload']
-        mode_stats = []
-        
-        for mode in modes:
-            mode_df = player_df[player_df['mode'] == mode]
-            
-            if not mode_df.empty:
-                stats = {
-                    'Mode': mode,
-                    'Maps': len(mode_df),
-                    'Avg Kills': mode_df['kills'].mean(),
-                    'Avg Deaths': mode_df['deaths'].mean(),
-                    'K/D': mode_df['kills'].mean() / mode_df['deaths'].mean() if mode_df['deaths'].mean() > 0 else 0,
-                    'Avg Damage': mode_df['damage'].mean(),
-                    'Win %': (mode_df['won_map'].sum() / len(mode_df) * 100) if len(mode_df) > 0 else 0
-                }
-                mode_stats.append(stats)
-        
-        if mode_stats:
-            mode_stats_df = pd.DataFrame(mode_stats)
-            
-            # Display as metrics
-            col1, col2, col3, col4 = st.columns(4)
-            
-            with col1:
-                total_maps = mode_stats_df['Maps'].sum()
-                st.metric("Total Maps", int(total_maps))
-            
-            with col2:
-                overall_avg_kills = (player_df['kills'].sum() / len(player_df)) if len(player_df) > 0 else 0
-                st.metric("Overall Avg Kills", f"{overall_avg_kills:.1f}")
-            
-            with col3:
-                overall_kd = player_df['kills'].sum() / player_df['deaths'].sum() if player_df['deaths'].sum() > 0 else 0
-                st.metric("Overall K/D", f"{overall_kd:.2f}")
-            
-            with col4:
-                win_rate = (player_df['won_map'].sum() / len(player_df) * 100) if len(player_df) > 0 else 0
-                st.metric("Win Rate", f"{win_rate:.1f}%")
-            
-            # Mode breakdown table
-            st.markdown("**Mode Breakdown**")
-            st.dataframe(
-                mode_stats_df.style.format({
-                    'Avg Kills': '{:.1f}',
-                    'Avg Deaths': '{:.1f}',
-                    'K/D': '{:.2f}',
-                    'Avg Damage': '{:.0f}',
-                    'Win %': '{:.1f}%'
-                }),
-                use_container_width=True,
-                hide_index=True
-            )
-            
-            # Visualizations
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                fig_kills = px.bar(
-                    mode_stats_df,
-                    x='Mode',
-                    y='Avg Kills',
-                    color='Avg Kills',
-                    color_continuous_scale='Blues',
-                    title=f"Avg Kills by Mode vs {selected_opponent}",
-                )
-                fig_kills.update_layout(height=300, showlegend=False)
-                st.plotly_chart(fig_kills, use_container_width=True)
-            
-            with col2:
-                fig_kd = px.bar(
-                    mode_stats_df,
-                    x='Mode',
-                    y='K/D',
-                    color='K/D',
-                    color_continuous_scale='Greens',
-                    title=f"K/D by Mode vs {selected_opponent}",
-                )
-                fig_kd.update_layout(height=300, showlegend=False)
-                st.plotly_chart(fig_kd, use_container_width=True)
-        
-        st.divider()
+        if not mode_df.empty:
+            stats = {
+                'Mode': mode,
+                'Maps': len(mode_df),
+                'Avg Kills': mode_df['kills'].mean(),
+                'Avg Deaths': mode_df['deaths'].mean(),
+                'K/D': mode_df['kills'].mean() / mode_df['deaths'].mean() if mode_df['deaths'].mean() > 0 else 0,
+                'Avg Damage': mode_df['damage'].mean(),
+                'Win %': (mode_df['won_map'].sum() / len(mode_df) * 100) if len(mode_df) > 0 else 0
+            }
+            mode_stats.append(stats)
+    
+    if not mode_stats:
+        st.info("No mode statistics available.")
+        return
+    
+    mode_stats_df = pd.DataFrame(mode_stats)
+    
+    # Calculate Map 1-3 Average (sum of mode averages)
+    avg_kills_hp = mode_stats_df[mode_stats_df['Mode'] == 'Hardpoint']['Avg Kills'].values[0] if 'Hardpoint' in mode_stats_df['Mode'].values else 0
+    avg_kills_snd = mode_stats_df[mode_stats_df['Mode'] == 'Search & Destroy']['Avg Kills'].values[0] if 'Search & Destroy' in mode_stats_df['Mode'].values else 0
+    avg_kills_overload = mode_stats_df[mode_stats_df['Mode'] == 'Overload']['Avg Kills'].values[0] if 'Overload' in mode_stats_df['Mode'].values else 0
+    avg_map_1_3 = avg_kills_hp + avg_kills_snd + avg_kills_overload
+    
+    # Overall metrics
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        total_maps = len(opponent_df)
+        st.metric("Total Maps", total_maps)
+    
+    with col2:
+        st.metric("Avg Map 1-3 Kills", f"{avg_map_1_3:.1f}")
+    
+    with col3:
+        overall_kd = opponent_df['kills'].sum() / opponent_df['deaths'].sum() if opponent_df['deaths'].sum() > 0 else 0
+        st.metric("Overall K/D", f"{overall_kd:.2f}")
+    
+    with col4:
+        win_rate = (opponent_df['won_map'].sum() / len(opponent_df) * 100) if len(opponent_df) > 0 else 0
+        st.metric("Win Rate", f"{win_rate:.1f}%")
+    
+    # Mode breakdown table
+    st.markdown("### Mode Breakdown")
+    st.dataframe(
+        mode_stats_df.style.format({
+            'Avg Kills': '{:.1f}',
+            'Avg Deaths': '{:.1f}',
+            'K/D': '{:.2f}',
+            'Avg Damage': '{:.0f}',
+            'Win %': '{:.1f}%'
+        }),
+        use_container_width=True,
+        hide_index=True
+    )
+    
+    # Visualizations
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        fig_kills = px.bar(
+            mode_stats_df,
+            x='Mode',
+            y='Avg Kills',
+            color='Avg Kills',
+            color_continuous_scale='Blues',
+            title=f"Avg Kills by Mode vs {selected_opponent}",
+        )
+        fig_kills.update_layout(height=400, showlegend=False)
+        st.plotly_chart(fig_kills, use_container_width=True)
+    
+    with col2:
+        fig_kd = px.bar(
+            mode_stats_df,
+            x='Mode',
+            y='K/D',
+            color='K/D',
+            color_continuous_scale='Greens',
+            title=f"K/D by Mode vs {selected_opponent}",
+        )
+        fig_kd.update_layout(height=400, showlegend=False)
+        st.plotly_chart(fig_kd, use_container_width=True)
+    
+    # Win rate by mode
+    st.markdown("### Win Rate by Mode")
+    fig_wr = px.bar(
+        mode_stats_df,
+        x='Mode',
+        y='Win %',
+        color='Win %',
+        color_continuous_scale='RdYlGn',
+        title=f"Win Rate by Mode vs {selected_opponent}",
+    )
+    fig_wr.update_layout(height=400, showlegend=False)
+    st.plotly_chart(fig_wr, use_container_width=True)
 
 
 # ============================================================================
