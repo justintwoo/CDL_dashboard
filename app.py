@@ -109,12 +109,61 @@ st.markdown("""
         padding-bottom: 10px;
         margin-bottom: 20px;
     }
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        margin: 40px 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .loading-text {
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 20px;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    .loading-subtext {
+        color: rgba(255,255,255,0.9);
+        font-size: 16px;
+        margin-top: 10px;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+    .spinner {
+        border: 8px solid rgba(255,255,255,0.2);
+        border-top: 8px solid white;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # ============================================================================
 # DATA LOADING & CACHING
 # ============================================================================
+
+def show_loading_animation(message="Loading CDL Data", subtext="Please wait while we fetch the latest stats..."):
+    """Display an aesthetic loading animation"""
+    return st.markdown(f"""
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <div class="loading-text">{message}</div>
+            <div class="loading-subtext">{subtext}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
 def load_data_with_refresh() -> pd.DataFrame:
     """
@@ -153,43 +202,51 @@ def refresh_data():
     from scrape_breakingpoint import scrape_live_data
     from datetime import datetime
     
-    with st.spinner("🔄 Refreshing data from breakingpoint.gg..."):
-        try:
-            # Get the last scrape date
-            last_date = get_last_scrape_date()
-            if last_date:
-                start_date_str = last_date.strftime('%Y-%m-%d')
-                st.info(f"Scraping matches from {start_date_str} to now...")
-            else:
-                start_date_str = None
-                st.info("Scraping matches from past 7 days...")
+    # Create a placeholder for the loading animation
+    loading_placeholder = st.empty()
+    
+    try:
+        # Show loading animation
+        with loading_placeholder:
+            show_loading_animation("🔄 Refreshing Data", "Scraping latest matches from breakingpoint.gg...")
+        
+        # Get the last scrape date
+        last_date = get_last_scrape_date()
+        if last_date:
+            start_date_str = last_date.strftime('%Y-%m-%d')
+        else:
+            start_date_str = None
+        
+        # Scrape new data
+        new_df = scrape_live_data(start_date=start_date_str)
+        
+        # Clear loading animation
+        loading_placeholder.empty()
+        
+        if new_df is not None and not new_df.empty:
+            # Cache to database
+            cache_match_data(new_df)
             
-            # Scrape new data
-            new_df = scrape_live_data(start_date=start_date_str)
+            # Update last scrape date to now
+            update_last_scrape_date(datetime.now())
             
-            if new_df is not None and not new_df.empty:
-                # Cache to database
-                cache_match_data(new_df)
-                
-                # Update last scrape date to now
-                update_last_scrape_date(datetime.now())
-                
-                st.success(f"✅ Successfully refreshed! Added {len(new_df)} new player records.")
-                
-                # Clear the session state to force reload
-                if 'df' in st.session_state:
-                    del st.session_state.df
-                
-                return True
-            else:
-                st.warning("No new matches found.")
-                return False
-                
-        except Exception as e:
-            st.error(f"❌ Error refreshing data: {e}")
-            import traceback
-            st.code(traceback.format_exc())
+            st.success(f"✅ Successfully refreshed! Added {len(new_df)} new player records.")
+            
+            # Clear the session state to force reload
+            if 'df' in st.session_state:
+                del st.session_state.df
+            
+            return True
+        else:
+            st.warning("No new matches found.")
             return False
+            
+    except Exception as e:
+        loading_placeholder.empty()
+        st.error(f"❌ Error refreshing data: {e}")
+        import traceback
+        st.code(traceback.format_exc())
+        return False
 
 
 # Legacy function for backward compatibility
@@ -1778,7 +1835,14 @@ def main():
     # Initialize database on first load
     if 'db_initialized' not in st.session_state:
         if DATABASE_AVAILABLE:
+            # Show loading animation while initializing
+            loading_placeholder = st.empty()
+            with loading_placeholder:
+                show_loading_animation("Initializing Database", "Connecting to CDL Stats Database...")
+            
             success = init_db()
+            loading_placeholder.empty()
+            
             if not success:
                 st.warning(
                     "⚠️ Database connection failed. The app will run in fallback mode.\n\n"
@@ -1793,7 +1857,13 @@ def main():
     
     # Load data from database
     if 'df' not in st.session_state or st.session_state.df is None or st.session_state.df.empty:
+        # Show loading animation while loading data
+        loading_placeholder = st.empty()
+        with loading_placeholder:
+            show_loading_animation("Loading CDL Data", "Fetching player statistics and match data...")
+        
         st.session_state.df = load_data_with_refresh()
+        loading_placeholder.empty()
         
         if st.session_state.df.empty:
             if DATABASE_AVAILABLE:
