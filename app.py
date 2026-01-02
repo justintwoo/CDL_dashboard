@@ -652,9 +652,11 @@ def page_player_overview():
                 else:
                     st.markdown(f"**{player}**")
                 
-                # Calculate stats
-                # Map 1-3 average (all maps)
-                avg_kills_all = player_data['kills'].mean()
+                # Calculate stats - filter to only maps 1, 2, 3
+                maps_1_3_data = player_data[player_data['map_number'].isin([1, 2, 3])]
+                
+                # Map 1-3 average (only maps 1, 2, 3)
+                avg_kills_all = maps_1_3_data['kills'].mean() if not maps_1_3_data.empty else 0
                 
                 # Map 1 only
                 map1_data = player_data[player_data['map_number'] == 1]
