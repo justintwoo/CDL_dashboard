@@ -653,6 +653,10 @@ def page_player_overview():
                 else:
                     st.markdown(f"**{player}**")
                 
+                # Get player position from config
+                from config import get_player_position
+                player_position = get_player_position(player)
+                
                 # Calculate stats using ALL available data for each mode
                 # Hardpoint (Maps 1 & 4)
                 hp_data = player_data[player_data['mode'] == 'Hardpoint']
@@ -669,8 +673,9 @@ def page_player_overview():
                 # Sum of mode averages (using all available data)
                 avg_kills_total = avg_kills_hp + avg_kills_snd + avg_kills_overload
                 
-                # Display player name and stats
+                # Display player name, position, and stats
                 st.markdown(f"**{player}**")
+                st.caption(f"Position: {player_position}")
                 st.metric("Avg Map 1-3 Kills", f"{avg_kills_total:.1f}")
                 st.caption(f"Hardpoint (Maps 1,4): **{avg_kills_hp:.1f}**")
                 st.caption(f"Search & Destroy (Maps 2,5): **{avg_kills_snd:.1f}**")
