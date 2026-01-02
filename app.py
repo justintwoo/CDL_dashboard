@@ -923,7 +923,7 @@ def page_player_detail(player_name):
         map_numbers_tuple = tuple(player_df_sorted['map_number'].unique())
         map_scores = calculate_map_scores_cached(df_hash, player_name, match_ids_tuple, map_numbers_tuple)
         
-        # Team-based color mapping (each team gets a consistent color)
+        # Team-based color mapping (each opponent team gets a consistent color)
         TEAM_COLORS = {
             'Boston Breach': '#D6EAF8',          # Light blue
             'Carolina Royal Ravens': '#FCF3CF',  # Light yellow
@@ -939,16 +939,16 @@ def page_player_detail(player_name):
             'Vancouver Surge': '#F8BBD0',        # Pink
         }
         
-        # Create detailed match table with team-based color coding
+        # Create detailed match table with opponent-based color coding
         match_data = []
-        match_colors = {}  # Maps match_id to team color
+        row_colors = []  # Store color for each row based on opponent
         
         for _, row in player_df_sorted.iterrows():
             map_key = (row['match_id'], row['map_number'])
             
-            # Assign team color to this match (based on player's team, not opponent)
-            if row['match_id'] not in match_colors:
-                match_colors[row['match_id']] = TEAM_COLORS.get(row['team_name'], '#FFFFFF')
+            # Get color based on opponent team
+            opponent_color = TEAM_COLORS.get(row['opponent_team_name'], '#FFFFFF')
+            row_colors.append(opponent_color)
             
             match_data.append({
                 'Match ID': row['match_id'],
@@ -968,19 +968,18 @@ def page_player_detail(player_name):
         
         match_df = pd.DataFrame(match_data)
         
-        # Create a mapping from index to color for styling
-        index_to_color = {}
-        for idx, row_data in enumerate(match_data):
-            index_to_color[idx] = match_colors.get(row_data['Match ID'], '#FFFFFF')
+        # Create a mapping from index to color for styling (based on opponent)
+        index_to_color = {idx: color for idx, color in enumerate(row_colors)}
         
         # Display with styling using Streamlit's dataframe
-        def highlight_series(row):
+        def highlight_by_opponent(row):
+            """Color each row based on the opponent team"""
             color = index_to_color.get(row.name, '#FFFFFF')
             return [f'background-color: {color}; color: #000000' for _ in row]
         
         # Drop Match ID column and apply styling
         display_df = match_df.drop(columns=['Match ID'])
-        styled_df = display_df.style.apply(highlight_series, axis=1)
+        styled_df = display_df.style.apply(highlight_by_opponent, axis=1)
         
         st.dataframe(
             styled_df,
