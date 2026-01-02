@@ -666,6 +666,255 @@ def page_data_overview():
 
 
 # ============================================================================
+# TEAM DETAIL PAGE
+# ============================================================================
+
+def page_team_detail(team_name):
+    """Display detailed team dashboard with mode-specific analysis."""
+    st.markdown(f'<div class="title-section"><h2>🏆 {team_name}</h2></div>', 
+                unsafe_allow_html=True)
+    
+    # Back button
+    if st.button("← Back to Player Overview"):
+        if 'current_team' in st.session_state:
+            del st.session_state.current_team
+        st.rerun()
+    
+    filtered_df = render_sidebar_filters()
+    team_df = filtered_df[filtered_df['team_name'] == team_name]
+    
+    if team_df.empty:
+        st.warning(f"No data available for {team_name}")
+        return
+    
+    # Team overview metrics
+    st.markdown("### Team Overview")
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        total_maps = len(team_df.groupby(['match_id', 'map_number']).size())
+        st.metric("Total Maps", total_maps)
+    
+    with col2:
+        total_series = team_df['match_id'].nunique()
+        st.metric("Series Played", total_series)
+    
+    with col3:
+        win_rate = (team_df['won_map'].sum() / len(team_df.groupby(['match_id', 'map_number']).size()) * 100) if len(team_df) > 0 else 0
+        st.metric("Map Win Rate", f"{win_rate:.1f}%")
+    
+    with col4:
+        avg_kills = team_df.groupby(['match_id', 'map_number', 'player_name'])['kills'].sum().mean()
+        st.metric("Avg Kills/Player", f"{avg_kills:.1f}")
+    
+    st.divider()
+    
+    # Mode tabs
+    tab1, tab2, tab3 = st.tabs(["🎯 Hardpoint", "💣 Search & Destroy", "⚡ Overload"])
+    
+    # ===== HARDPOINT TAB =====
+    with tab1:
+        st.markdown("### Hardpoint Analysis")
+        hp_df = team_df[team_df['mode'] == 'Hardpoint']
+        
+        if hp_df.empty:
+            st.info("No Hardpoint data available.")
+        else:
+            # Win/Loss filter
+            win_loss_filter = st.radio(
+                "Filter by Result",
+                ["All Maps", "Wins Only", "Losses Only"],
+                horizontal=True,
+                key="hp_filter"
+            )
+            
+            # Apply filter
+            if win_loss_filter == "Wins Only":
+                hp_filtered = hp_df[hp_df['won_map'] == True]
+            elif win_loss_filter == "Losses Only":
+                hp_filtered = hp_df[hp_df['won_map'] == False]
+            else:
+                hp_filtered = hp_df
+            
+            # Get unique maps
+            maps = sorted(hp_filtered['map_name'].unique())
+            
+            # Display stats by map
+            for map_name in maps:
+                map_df = hp_filtered[hp_filtered['map_name'] == map_name]
+                
+                # Calculate map record
+                map_total = len(map_df.groupby(['match_id', 'map_number']).size())
+                map_won = len(map_df[map_df['won_map'] == True].groupby(['match_id', 'map_number']).size())
+                map_lost = map_total - map_won
+                
+                with st.expander(f"📍 {map_name} ({map_won}-{map_lost})"):
+                    # Player stats on this map
+                    player_stats = []
+                    players = sorted(map_df['player_name'].unique())
+                    
+                    for player in players:
+                        player_map_df = map_df[map_df['player_name'] == player]
+                        stats = {
+                            'Player': player,
+                            'Maps': len(player_map_df),
+                            'Avg Kills': player_map_df['kills'].mean(),
+                            'Avg Deaths': player_map_df['deaths'].mean(),
+                            'K/D': player_map_df['kills'].mean() / player_map_df['deaths'].mean() if player_map_df['deaths'].mean() > 0 else 0,
+                            'Avg Damage': player_map_df['damage'].mean(),
+                            'Win %': (player_map_df['won_map'].sum() / len(player_map_df) * 100) if len(player_map_df) > 0 else 0
+                        }
+                        player_stats.append(stats)
+                    
+                    stats_df = pd.DataFrame(player_stats)
+                    st.dataframe(
+                        stats_df.style.format({
+                            'Avg Kills': '{:.1f}',
+                            'Avg Deaths': '{:.1f}',
+                            'K/D': '{:.2f}',
+                            'Avg Damage': '{:.0f}',
+                            'Win %': '{:.1f}%'
+                        }),
+                        use_container_width=True,
+                        hide_index=True
+                    )
+    
+    # ===== SEARCH & DESTROY TAB =====
+    with tab2:
+        st.markdown("### Search & Destroy Analysis")
+        snd_df = team_df[team_df['mode'] == 'Search & Destroy']
+        
+        if snd_df.empty:
+            st.info("No Search & Destroy data available.")
+        else:
+            # Win/Loss filter
+            win_loss_filter = st.radio(
+                "Filter by Result",
+                ["All Maps", "Wins Only", "Losses Only"],
+                horizontal=True,
+                key="snd_filter"
+            )
+            
+            # Apply filter
+            if win_loss_filter == "Wins Only":
+                snd_filtered = snd_df[snd_df['won_map'] == True]
+            elif win_loss_filter == "Losses Only":
+                snd_filtered = snd_df[snd_df['won_map'] == False]
+            else:
+                snd_filtered = snd_df
+            
+            # Get unique maps
+            maps = sorted(snd_filtered['map_name'].unique())
+            
+            # Display stats by map
+            for map_name in maps:
+                map_df = snd_filtered[snd_filtered['map_name'] == map_name]
+                
+                # Calculate map record
+                map_total = len(map_df.groupby(['match_id', 'map_number']).size())
+                map_won = len(map_df[map_df['won_map'] == True].groupby(['match_id', 'map_number']).size())
+                map_lost = map_total - map_won
+                
+                with st.expander(f"📍 {map_name} ({map_won}-{map_lost})"):
+                    # Player stats on this map
+                    player_stats = []
+                    players = sorted(map_df['player_name'].unique())
+                    
+                    for player in players:
+                        player_map_df = map_df[map_df['player_name'] == player]
+                        stats = {
+                            'Player': player,
+                            'Maps': len(player_map_df),
+                            'Avg Kills': player_map_df['kills'].mean(),
+                            'Avg Deaths': player_map_df['deaths'].mean(),
+                            'K/D': player_map_df['kills'].mean() / player_map_df['deaths'].mean() if player_map_df['deaths'].mean() > 0 else 0,
+                            'Avg Damage': player_map_df['damage'].mean(),
+                            'Win %': (player_map_df['won_map'].sum() / len(player_map_df) * 100) if len(player_map_df) > 0 else 0
+                        }
+                        player_stats.append(stats)
+                    
+                    stats_df = pd.DataFrame(player_stats)
+                    st.dataframe(
+                        stats_df.style.format({
+                            'Avg Kills': '{:.1f}',
+                            'Avg Deaths': '{:.1f}',
+                            'K/D': '{:.2f}',
+                            'Avg Damage': '{:.0f}',
+                            'Win %': '{:.1f}%'
+                        }),
+                        use_container_width=True,
+                        hide_index=True
+                    )
+    
+    # ===== OVERLOAD TAB =====
+    with tab3:
+        st.markdown("### Overload Analysis")
+        overload_df = team_df[team_df['mode'] == 'Overload']
+        
+        if overload_df.empty:
+            st.info("No Overload data available.")
+        else:
+            # Win/Loss filter
+            win_loss_filter = st.radio(
+                "Filter by Result",
+                ["All Maps", "Wins Only", "Losses Only"],
+                horizontal=True,
+                key="overload_filter"
+            )
+            
+            # Apply filter
+            if win_loss_filter == "Wins Only":
+                overload_filtered = overload_df[overload_df['won_map'] == True]
+            elif win_loss_filter == "Losses Only":
+                overload_filtered = overload_df[overload_df['won_map'] == False]
+            else:
+                overload_filtered = overload_df
+            
+            # Get unique maps
+            maps = sorted(overload_filtered['map_name'].unique())
+            
+            # Display stats by map
+            for map_name in maps:
+                map_df = overload_filtered[overload_filtered['map_name'] == map_name]
+                
+                # Calculate map record
+                map_total = len(map_df.groupby(['match_id', 'map_number']).size())
+                map_won = len(map_df[map_df['won_map'] == True].groupby(['match_id', 'map_number']).size())
+                map_lost = map_total - map_won
+                
+                with st.expander(f"📍 {map_name} ({map_won}-{map_lost})"):
+                    # Player stats on this map
+                    player_stats = []
+                    players = sorted(map_df['player_name'].unique())
+                    
+                    for player in players:
+                        player_map_df = map_df[map_df['player_name'] == player]
+                        stats = {
+                            'Player': player,
+                            'Maps': len(player_map_df),
+                            'Avg Kills': player_map_df['kills'].mean(),
+                            'Avg Deaths': player_map_df['deaths'].mean(),
+                            'K/D': player_map_df['kills'].mean() / player_map_df['deaths'].mean() if player_map_df['deaths'].mean() > 0 else 0,
+                            'Avg Damage': player_map_df['damage'].mean(),
+                            'Win %': (player_map_df['won_map'].sum() / len(player_map_df) * 100) if len(player_map_df) > 0 else 0
+                        }
+                        player_stats.append(stats)
+                    
+                    stats_df = pd.DataFrame(player_stats)
+                    st.dataframe(
+                        stats_df.style.format({
+                            'Avg Kills': '{:.1f}',
+                            'Avg Deaths': '{:.1f}',
+                            'K/D': '{:.2f}',
+                            'Avg Damage': '{:.0f}',
+                            'Win %': '{:.1f}%'
+                        }),
+                        use_container_width=True,
+                        hide_index=True
+                    )
+
+
+# ============================================================================
 # PAGE 2: PLAYER OVERVIEW
 # ============================================================================
 
@@ -673,6 +922,11 @@ def page_player_overview():
     """Display team-organized player statistics across all game modes."""
     st.markdown('<div class="title-section"><h2>👤 Player Overview</h2></div>', 
                 unsafe_allow_html=True)
+    
+    # Check if we should show team detail page
+    if 'current_team' in st.session_state and st.session_state.current_team:
+        page_team_detail(st.session_state.current_team)
+        return
     
     filtered_df = render_sidebar_filters()
     
@@ -748,9 +1002,17 @@ def page_player_overview():
         overload_lost = overload_total - overload_won
         
         # Team header with records and filter toggle
-        st.markdown(f"### {team}")
-        st.caption(f"**Match Record: {series_wins}-{series_losses}**")
-        st.caption(f"Hardpoint: **{hp_won}-{hp_lost}** | Search & Destroy: **{snd_won}-{snd_lost}** | Overload: **{overload_won}-{overload_lost}**")
+        col_header, col_button = st.columns([4, 1])
+        
+        with col_header:
+            st.markdown(f"### {team}")
+            st.caption(f"**Match Record: {series_wins}-{series_losses}**")
+            st.caption(f"Hardpoint: **{hp_won}-{hp_lost}** | Search & Destroy: **{snd_won}-{snd_lost}** | Overload: **{overload_won}-{overload_lost}**")
+        
+        with col_button:
+            if st.button("View Details →", key=f"view_{team}", use_container_width=True):
+                st.session_state.current_team = team
+                st.rerun()
         
         # Win/Loss filter - radio button for clear selection
         filter_option = st.radio(
