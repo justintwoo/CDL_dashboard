@@ -792,13 +792,19 @@ def page_player_detail(player_name):
         
         match_df = pd.DataFrame(match_data)
         
+        # Create a mapping from index to color for styling
+        index_to_color = {}
+        for idx, row_data in enumerate(match_data):
+            index_to_color[idx] = match_colors.get(row_data['Match ID'], '#FFFFFF')
+        
         # Display with styling using Streamlit's dataframe
         def highlight_series(row):
-            color = match_colors.get(row['Match ID'], '#FFFFFF')
+            color = index_to_color.get(row.name, '#FFFFFF')
             return [f'background-color: {color}' for _ in row]
         
-        # Apply styling and display
-        styled_df = match_df.drop(columns=['Match ID']).style.apply(highlight_series, axis=1)
+        # Drop Match ID column and apply styling
+        display_df = match_df.drop(columns=['Match ID'])
+        styled_df = display_df.style.apply(highlight_series, axis=1)
         
         st.dataframe(
             styled_df,
