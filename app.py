@@ -653,22 +653,42 @@ def page_player_overview():
         overload_won = len(overload_df[overload_df['won_map'] == True].groupby(['match_id', 'map_number']).size()) if not overload_df.empty else 0
         overload_lost = overload_total - overload_won
         
-        # Team header with records
+        # Team header with records and filter toggle
         st.markdown(f"### {team}")
         st.caption(f"**Match Record: {series_wins}-{series_losses}**")
         st.caption(f"Hardpoint: **{hp_won}-{hp_lost}** | Search & Destroy: **{snd_won}-{snd_lost}** | Overload: **{overload_won}-{overload_lost}**")
+        
+        # Win/Loss filter - radio button for clear selection
+        filter_option = st.radio(
+            "Show stats for:",
+            ["All Maps", "Wins Only", "Losses Only"],
+            horizontal=True,
+            key=f"{team}_filter"
+        )
+        
+        # Filter data based on selection
+        if filter_option == "Wins Only":
+            team_df_filtered = team_df[team_df['won_map'] == True]
+            filter_label = " (Wins Only)"
+        elif filter_option == "Losses Only":
+            team_df_filtered = team_df[team_df['won_map'] == False]
+            filter_label = " (Losses Only)"
+        else:  # All Maps
+            team_df_filtered = team_df
+            filter_label = ""
         
         # Get players for this team (from roster or from data)
         if team in team_player_map:
             players = team_player_map[team]
         else:
-            players = sorted(team_df['player_name'].unique())
+            players = sorted(team_df_filtered['player_name'].unique())
         
         # Create columns for each player (max 4 per row)
         cols = st.columns(4)
         
         for idx, player in enumerate(players):
-            player_data = team_df[team_df['player_name'] == player]
+            # Use filtered data based on win/loss toggle
+            player_data = team_df_filtered[team_df_filtered['player_name'] == player]
             
             if player_data.empty:
                 continue
