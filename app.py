@@ -761,7 +761,8 @@ def page_data_overview():
 @st.cache_data(ttl=300, show_spinner=False)
 def calculate_map_scores_cached(df_hash, player_name, match_ids_tuple, map_numbers_tuple):
     """
-    Cached calculation of map scores to avoid recomputing on filter changes.
+    Cached calculation of map scores using actual game scores (HP points, S&D rounds, Overload caps).
+    Falls back to kills-deaths if score data not available.
     TTL of 300 seconds (5 minutes).
     """
     player_df = st.session_state.df[st.session_state.df['player_name'] == player_name]
@@ -773,15 +774,22 @@ def calculate_map_scores_cached(df_hash, player_name, match_ids_tuple, map_numbe
     for match_id in match_ids:
         for map_number in map_numbers:
             map_key = (match_id, map_number)
-            # Get all players' data for this specific map
+            # Get player's row for this specific map to get team_score and opponent_score
             map_data = player_df[(player_df['match_id'] == match_id) & 
                                 (player_df['map_number'] == map_number)]
             
             if not map_data.empty:
-                # Calculate team total kills and opponent total kills for this map
-                team_kills = map_data['kills'].sum()
-                team_deaths = map_data['deaths'].sum()
-                map_scores[map_key] = f"{int(team_kills)}-{int(team_deaths)}"
+                # Try to use actual game scores first
+                first_row = map_data.iloc[0]
+                if pd.notna(first_row.get('team_score')) and pd.notna(first_row.get('opponent_score')):
+                    team_score = int(first_row['team_score'])
+                    opponent_score = int(first_row['opponent_score'])
+                    map_scores[map_key] = f"{team_score}-{opponent_score}"
+                else:
+                    # Fallback to kills-deaths if score data not available
+                    team_kills = map_data['kills'].sum()
+                    team_deaths = map_data['deaths'].sum()
+                    map_scores[map_key] = f"{int(team_kills)}-{int(team_deaths)}"
     
     return map_scores
 

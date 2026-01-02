@@ -91,6 +91,8 @@ class PlayerStats(Base):
     rating = Column(Numeric(10, 4))
     won_map = Column(Boolean)
     game_num = Column(Integer)
+    team_score = Column(Integer)  # Team's score for this map (HP points, S&D rounds, Overload caps)
+    opponent_score = Column(Integer)  # Opponent's score for this map
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationship
@@ -232,6 +234,8 @@ def cache_match_data(df: pd.DataFrame) -> bool:
                 rating=float(row['rating']) if pd.notna(row['rating']) else None,
                 won_map=bool(row['won_map']) if pd.notna(row['won_map']) else None,
                 game_num=int(row.get('game_num', map_num)) if pd.notna(row.get('game_num', map_num)) else None,
+                team_score=int(row['team_score']) if pd.notna(row.get('team_score')) else None,
+                opponent_score=int(row['opponent_score']) if pd.notna(row.get('opponent_score')) else None,
             )
             session.add(player_stat)
         
@@ -300,6 +304,8 @@ def load_from_cache() -> Optional[pd.DataFrame]:
                 'rating': stat.rating,
                 'won_map': stat.won_map,
                 'game_num': stat.game_num,
+                'team_score': stat.team_score,
+                'opponent_score': stat.opponent_score,
             })
         
         df = pd.DataFrame(data)

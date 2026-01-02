@@ -192,6 +192,17 @@ def fetch_match_player_stats(match_id: int) -> Optional[List[Dict]]:
                             player_team_id = player_stat.get('team_id')
                             player_stat['won_map'] = (player_team_id == winning_team_id) if winning_team_id else None
                             
+                            # Add team and opponent scores for this game
+                            if player_team_id == team_1_id:
+                                player_stat['team_score'] = team_1_score
+                                player_stat['opponent_score'] = team_2_score
+                            elif player_team_id == team_2_id:
+                                player_stat['team_score'] = team_2_score
+                                player_stat['opponent_score'] = team_1_score
+                            else:
+                                player_stat['team_score'] = None
+                                player_stat['opponent_score'] = None
+                            
                             all_player_stats.append(player_stat)
                     
                     if all_player_stats:
@@ -356,6 +367,8 @@ def scrape_live_data(start_date: Optional[str] = None) -> Optional[pd.DataFrame]
                                 'defuses': stat.get('defuse_count', 0) or 0,
                                 'rating': rating,
                                 'won_map': team_won,
+                                'team_score': stat.get('team_score'),
+                                'opponent_score': stat.get('opponent_score'),
                             })
                     else:
                         print("❌ No data")
