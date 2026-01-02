@@ -148,6 +148,43 @@ st.markdown("""
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+    .upcoming-banner {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        padding: 15px 25px;
+        border-radius: 12px;
+        margin: 20px 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .upcoming-banner-content {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .upcoming-match-item {
+        background: rgba(255,255,255,0.2);
+        padding: 8px 15px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+    .upcoming-banner-title {
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        margin-right: 15px;
+    }
+    .upcoming-vs {
+        color: white;
+        font-weight: bold;
+        padding: 0 8px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -1906,18 +1943,33 @@ def main():
                 st.session_state.df = load_data_with_refresh()
                 st.rerun()
     
-    
     st.divider()
     
-    # Show data metrics
+    # Show upcoming matches banner
     if not st.session_state.df.empty:
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Total Maps", len(st.session_state.df))
-        with col2:
-            st.metric("Unique Matches", st.session_state.df['match_id'].nunique())
-        with col3:
-            st.metric("Unique Players", st.session_state.df['player_name'].nunique())
+        try:
+            from scrape_breakingpoint import fetch_upcoming_matches
+            upcoming_df = fetch_upcoming_matches()
+            
+            if upcoming_df is not None and not upcoming_df.empty:
+                # Get next 3 upcoming matches
+                next_matches = upcoming_df.head(3)
+                
+                # Build banner HTML
+                banner_html = '<div class="upcoming-banner">'
+                banner_html += '<span class="upcoming-banner-title">🔥 UPCOMING MATCHES</span>'
+                banner_html += '<div class="upcoming-banner-content">'
+                
+                for _, match in next_matches.iterrows():
+                    match_date = match['datetime'].strftime('%b %d')
+                    match_time = match['datetime'].strftime('%I:%M %p')
+                    matchup = f"{match['team_1']} <span class='upcoming-vs'>vs</span> {match['team_2']}"
+                    banner_html += f'<div class="upcoming-match-item">{match_date} • {matchup}</div>'
+                
+                banner_html += '</div></div>'
+                st.markdown(banner_html, unsafe_allow_html=True)
+        except Exception as e:
+            pass  # Silently fail if upcoming matches can't be loaded
         
         st.divider()
         
