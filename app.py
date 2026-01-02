@@ -754,15 +754,22 @@ def page_player_detail(player_name):
         # Sort by date (most recent first)
         player_df_sorted = player_df_filtered.sort_values(['date', 'match_id', 'map_number'], ascending=[False, False, True])
         
-        # Calculate match scores (team maps won in each series)
-        match_scores = {}
-        for match_id in player_df_sorted['match_id'].unique():
-            match_data = player_df[player_df['match_id'] == match_id]
-            # Get unique maps in this match
-            unique_maps = match_data.groupby('map_number')['won_map'].first()
-            team_wins = unique_maps.sum()
-            opponent_wins = len(unique_maps) - team_wins
-            match_scores[match_id] = f"{int(team_wins)}-{int(opponent_wins)}"
+        # Calculate map scores for each individual map
+        map_scores = {}
+        for _, row in player_df_sorted.iterrows():
+            map_key = (row['match_id'], row['map_number'])
+            if map_key not in map_scores:
+                # Get all players' data for this specific map
+                map_data = player_df[(player_df['match_id'] == row['match_id']) & 
+                                     (player_df['map_number'] == row['map_number'])]
+                
+                # Calculate team total kills and opponent total kills for this map
+                team_kills = map_data['kills'].sum()
+                team_deaths = map_data['deaths'].sum()
+                
+                # Deaths for team = Kills for opponent (in CoD)
+                # Kills for team vs Deaths for team gives us the score
+                map_scores[map_key] = f"{int(team_kills)}-{int(team_deaths)}"
         
         # Create detailed match table with color coding
         match_data = []
@@ -784,9 +791,10 @@ def page_player_detail(player_name):
             match_colors[match_id] = color_palette[idx % len(color_palette)]
         
         for _, row in player_df_sorted.iterrows():
+            map_key = (row['match_id'], row['map_number'])
             match_data.append({
                 'Match ID': row['match_id'],
-                'Series Score': match_scores.get(row['match_id'], 'N/A'),
+                'Map Score': map_scores.get(map_key, 'N/A'),
                 'Date': row['date'].strftime('%Y-%m-%d') if pd.notna(row['date']) else 'N/A',
                 'Opponent': row['opponent_team_name'],
                 'Map': row['map_name'],
