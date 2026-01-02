@@ -185,6 +185,17 @@ st.markdown("""
         font-weight: bold;
         padding: 0 8px;
     }
+    .player-image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .player-image-container img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -1303,11 +1314,14 @@ def page_player_overview():
                 continue
             
             with cols[idx % 4]:
-                # Player image
+                # Player image - centered
                 if player in player_images:
-                    st.image(player_images[player], width=150, use_container_width=False)
+                    st.markdown(
+                        f'<div class="player-image-container"><img src="{player_images[player]}" width="150"></div>',
+                        unsafe_allow_html=True
+                    )
                 else:
-                    st.markdown(f"**{player}**")
+                    st.markdown(f"<div style='text-align: center;'><strong>{player}</strong></div>", unsafe_allow_html=True)
                 
                 # Get player position from config
                 from config import get_player_position
