@@ -767,7 +767,17 @@ def page_player_detail(player_name):
         # Create detailed match table with color coding
         match_data = []
         match_colors = {}
-        color_palette = ['#E8F4F8', '#FFF4E6', '#F0F8E8', '#FFE6F0', '#E6F2FF', '#FFF0E6', '#F5E6FF', '#E6FFFA']
+        # Updated color palette with better contrast and readability
+        color_palette = [
+            '#D6EAF8',  # Light blue
+            '#FCF3CF',  # Light yellow
+            '#D5F4E6',  # Light green
+            '#FADBD8',  # Light red/pink
+            '#E8DAEF',  # Light purple
+            '#FAE5D3',  # Light orange
+            '#D5DBDB',  # Light gray
+            '#D4EFDF',  # Mint green
+        ]
         
         unique_matches = player_df_sorted['match_id'].unique()
         for idx, match_id in enumerate(unique_matches):
@@ -800,7 +810,7 @@ def page_player_detail(player_name):
         # Display with styling using Streamlit's dataframe
         def highlight_series(row):
             color = index_to_color.get(row.name, '#FFFFFF')
-            return [f'background-color: {color}' for _ in row]
+            return [f'background-color: {color}; color: #000000' for _ in row]
         
         # Drop Match ID column and apply styling
         display_df = match_df.drop(columns=['Match ID'])
