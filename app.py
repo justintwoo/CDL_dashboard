@@ -705,64 +705,96 @@ def page_player_detail(player_name):
     
     st.divider()
     
-    # Overall stats
-    st.markdown("### Career Statistics")
-    col1, col2, col3, col4, col5 = st.columns(5)
-    
-    with col1:
-        avg_kills = player_df['kills'].mean()
-        st.metric("Avg Kills", f"{avg_kills:.1f}")
-    
-    with col2:
-        avg_deaths = player_df['deaths'].mean()
-        st.metric("Avg Deaths", f"{avg_deaths:.1f}")
-    
-    with col3:
-        kd_ratio = player_df['kills'].sum() / player_df['deaths'].sum() if player_df['deaths'].sum() > 0 else 0
-        st.metric("K/D Ratio", f"{kd_ratio:.2f}")
-    
-    with col4:
-        avg_damage = player_df['damage'].mean()
-        st.metric("Avg Damage", f"{avg_damage:.0f}")
-    
-    with col5:
-        win_rate = (player_df['won_map'].sum() / len(player_df) * 100) if len(player_df) > 0 else 0
-        st.metric("Win Rate", f"{win_rate:.1f}%")
-    
-    st.divider()
-    
-    # Recent Match Performance
+    # Recent Match Performance with Filters
     st.markdown("### Recent Match Performance")
     
-    # Sort by date (most recent first)
-    player_df_sorted = player_df.sort_values('date', ascending=False)
+    # Filters
+    col1, col2, col3 = st.columns(3)
     
-    # Create detailed match table
-    match_data = []
-    for _, row in player_df_sorted.iterrows():
-        match_data.append({
-            'Date': row['date'].strftime('%Y-%m-%d') if pd.notna(row['date']) else 'N/A',
-            'Opponent': row['opponent_team_name'],
-            'Map': row['map_name'],
-            'Mode': row['mode'],
-            'Map #': int(row['map_number']) if pd.notna(row['map_number']) else 'N/A',
-            'Kills': int(row['kills']),
-            'Deaths': int(row['deaths']),
-            'Assists': int(row['assists']),
-            'K/D': round(row['kills'] / row['deaths'], 2) if row['deaths'] > 0 else row['kills'],
-            'Damage': int(row['damage']),
-            'Result': '✅ Win' if row['won_map'] else '❌ Loss'
-        })
+    with col1:
+        mode_options = ['All Modes'] + sorted(player_df['mode'].unique().tolist())
+        selected_mode = st.selectbox("Filter by Mode", mode_options, key="player_mode_filter")
     
-    match_df = pd.DataFrame(match_data)
+    with col2:
+        map_options = ['All Maps'] + sorted(player_df['map_name'].unique().tolist())
+        selected_map = st.selectbox("Filter by Map", map_options, key="player_map_filter")
     
-    # Display with styling
-    st.dataframe(
-        match_df,
-        use_container_width=True,
-        hide_index=True,
-        height=600
-    )
+    with col3:
+        result_options = ['All Results', 'Wins Only', 'Losses Only']
+        selected_result = st.selectbox("Filter by Result", result_options, key="player_result_filter")
+    
+    # Apply filters
+    player_df_filtered = player_df.copy()
+    
+    if selected_mode != 'All Modes':
+        player_df_filtered = player_df_filtered[player_df_filtered['mode'] == selected_mode]
+    
+    if selected_map != 'All Maps':
+        player_df_filtered = player_df_filtered[player_df_filtered['map_name'] == selected_map]
+    
+    if selected_result == 'Wins Only':
+        player_df_filtered = player_df_filtered[player_df_filtered['won_map'] == True]
+    elif selected_result == 'Losses Only':
+        player_df_filtered = player_df_filtered[player_df_filtered['won_map'] == False]
+    
+    if player_df_filtered.empty:
+        st.info("No matches found with the selected filters.")
+    else:
+        # Sort by date (most recent first)
+        player_df_sorted = player_df_filtered.sort_values(['date', 'match_id', 'map_number'], ascending=[False, False, True])
+        
+        # Calculate match scores (team maps won in each series)
+        match_scores = {}
+        for match_id in player_df_sorted['match_id'].unique():
+            match_data = player_df[player_df['match_id'] == match_id]
+            # Get unique maps in this match
+            unique_maps = match_data.groupby('map_number')['won_map'].first()
+            team_wins = unique_maps.sum()
+            opponent_wins = len(unique_maps) - team_wins
+            match_scores[match_id] = f"{int(team_wins)}-{int(opponent_wins)}"
+        
+        # Create detailed match table with color coding
+        match_data = []
+        match_colors = {}
+        color_palette = ['#E8F4F8', '#FFF4E6', '#F0F8E8', '#FFE6F0', '#E6F2FF', '#FFF0E6', '#F5E6FF', '#E6FFFA']
+        
+        unique_matches = player_df_sorted['match_id'].unique()
+        for idx, match_id in enumerate(unique_matches):
+            match_colors[match_id] = color_palette[idx % len(color_palette)]
+        
+        for _, row in player_df_sorted.iterrows():
+            match_data.append({
+                'Match ID': row['match_id'],
+                'Series Score': match_scores.get(row['match_id'], 'N/A'),
+                'Date': row['date'].strftime('%Y-%m-%d') if pd.notna(row['date']) else 'N/A',
+                'Opponent': row['opponent_team_name'],
+                'Map': row['map_name'],
+                'Mode': row['mode'],
+                'Map #': int(row['map_number']) if pd.notna(row['map_number']) else 'N/A',
+                'Kills': int(row['kills']),
+                'Deaths': int(row['deaths']),
+                'Assists': int(row['assists']),
+                'K/D': round(row['kills'] / row['deaths'], 2) if row['deaths'] > 0 else row['kills'],
+                'Damage': int(row['damage']),
+                'Result': '✅ Win' if row['won_map'] else '❌ Loss'
+            })
+        
+        match_df = pd.DataFrame(match_data)
+        
+        # Display with styling using Streamlit's dataframe
+        def highlight_series(row):
+            color = match_colors.get(row['Match ID'], '#FFFFFF')
+            return [f'background-color: {color}' for _ in row]
+        
+        # Apply styling and display
+        styled_df = match_df.drop(columns=['Match ID']).style.apply(highlight_series, axis=1)
+        
+        st.dataframe(
+            styled_df,
+            use_container_width=True,
+            hide_index=True,
+            height=600
+        )
     
     st.divider()
     
