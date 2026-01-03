@@ -603,12 +603,156 @@ st.markdown("""
        SIDEBAR ENHANCEMENT
        ============================================ */
     [data-testid="stSidebar"] {
-        background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
-        border-right: 2px solid rgba(102,126,234,0.1);
+        background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%) !important;
+        border-right: 3px solid rgba(102,126,234,0.3) !important;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.15) !important;
     }
     
+    /* Sidebar content text color */
+    [data-testid="stSidebar"] * {
+        color: rgba(255,255,255,0.95) !important;
+    }
+    
+    /* Sidebar headers */
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {
+        color: white !important;
+        font-weight: 700 !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3) !important;
+    }
+    
+    /* Sidebar navigation items */
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin: 4px 0;
+        transition: var(--transition);
+    }
+    
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"]:hover {
+        background: rgba(255,255,255,0.1);
+        transform: translateX(4px);
+    }
+    
+    /* Sidebar radio buttons */
+    [data-testid="stSidebar"] .stRadio > label {
+        background: rgba(255,255,255,0.08) !important;
+        padding: 12px 16px !important;
+        border-radius: 10px !important;
+        margin: 6px 0 !important;
+        border: 2px solid rgba(255,255,255,0.1) !important;
+        transition: var(--transition) !important;
+        cursor: pointer !important;
+    }
+    
+    [data-testid="stSidebar"] .stRadio > label:hover {
+        background: rgba(255,255,255,0.15) !important;
+        border-color: rgba(102,126,234,0.5) !important;
+        transform: translateX(4px) !important;
+    }
+    
+    [data-testid="stSidebar"] .stRadio > label[data-checked="true"] {
+        background: var(--primary-gradient) !important;
+        border-color: rgba(255,255,255,0.3) !important;
+        box-shadow: 0 4px 12px rgba(102,126,234,0.4) !important;
+    }
+    
+    /* Sidebar radio button icons */
+    [data-testid="stSidebar"] .stRadio svg {
+        fill: white !important;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important;
+    }
+    
+    /* Sidebar buttons */
     [data-testid="stSidebar"] .stButton > button {
         width: 100%;
+        background: rgba(255,255,255,0.1) !important;
+        color: white !important;
+        border: 2px solid rgba(255,255,255,0.2) !important;
+        font-weight: 600 !important;
+        transition: var(--transition) !important;
+    }
+    
+    [data-testid="stSidebar"] .stButton > button:hover {
+        background: var(--primary-gradient) !important;
+        border-color: rgba(255,255,255,0.4) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(102,126,234,0.5) !important;
+    }
+    
+    /* Sidebar selectbox */
+    [data-testid="stSidebar"] .stSelectbox label {
+        color: white !important;
+        font-weight: 600 !important;
+    }
+    
+    [data-testid="stSidebar"] .stSelectbox > div > div {
+        background: rgba(255,255,255,0.1) !important;
+        border-color: rgba(255,255,255,0.2) !important;
+        color: white !important;
+    }
+    
+    [data-testid="stSidebar"] .stSelectbox > div > div:hover {
+        border-color: rgba(102,126,234,0.5) !important;
+        background: rgba(255,255,255,0.15) !important;
+    }
+    
+    /* Sidebar multiselect */
+    [data-testid="stSidebar"] .stMultiSelect label {
+        color: white !important;
+        font-weight: 600 !important;
+    }
+    
+    [data-testid="stSidebar"] .stMultiSelect > div > div {
+        background: rgba(255,255,255,0.1) !important;
+        border-color: rgba(255,255,255,0.2) !important;
+    }
+    
+    /* Sidebar dividers */
+    [data-testid="stSidebar"] hr {
+        border-color: rgba(255,255,255,0.2) !important;
+        margin: 20px 0 !important;
+    }
+    
+    /* Sidebar expander */
+    [data-testid="stSidebar"] .streamlit-expanderHeader {
+        background: rgba(255,255,255,0.1) !important;
+        border: 2px solid rgba(255,255,255,0.2) !important;
+        color: white !important;
+    }
+    
+    [data-testid="stSidebar"] .streamlit-expanderHeader:hover {
+        background: rgba(255,255,255,0.15) !important;
+        border-color: rgba(102,126,234,0.5) !important;
+    }
+    
+    /* Sidebar text input */
+    [data-testid="stSidebar"] .stTextInput > div > div > input {
+        background: rgba(255,255,255,0.1) !important;
+        border-color: rgba(255,255,255,0.2) !important;
+        color: white !important;
+    }
+    
+    [data-testid="stSidebar"] .stTextInput > div > div > input::placeholder {
+        color: rgba(255,255,255,0.5) !important;
+    }
+    
+    [data-testid="stSidebar"] .stTextInput > div > div > input:focus {
+        border-color: rgba(102,126,234,0.6) !important;
+        background: rgba(255,255,255,0.15) !important;
+    }
+    
+    /* Sidebar icon styling for better visibility */
+    [data-testid="stSidebar"] [data-testid="stImage"] {
+        filter: brightness(1.2) drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+        transition: var(--transition);
+    }
+    
+    [data-testid="stSidebar"] [data-testid="stImage"]:hover {
+        filter: brightness(1.4) drop-shadow(0 4px 12px rgba(102,126,234,0.6));
+        transform: scale(1.05);
     }
     
     /* ============================================
