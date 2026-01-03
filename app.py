@@ -20,6 +20,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import os
 import json
+import time
 
 from stats_utils import (
     get_player_overall_stats,
@@ -87,181 +88,610 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Custom CSS for better appearance
+# Custom CSS for modern, aesthetic UI
 st.markdown("""
     <style>
+    /* ============================================
+       ROOT VARIABLES - Modern Color Palette
+       ============================================ */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        --danger-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --dark-bg: #1a1a2e;
+        --card-bg: #ffffff;
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        --hover-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        --border-radius: 12px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* ============================================
+       GLOBAL IMPROVEMENTS
+       ============================================ */
+    .main {
+        background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    /* Streamlit default elements enhancement */
+    .stButton > button {
+        border-radius: var(--border-radius) !important;
+        font-weight: 600 !important;
+        transition: var(--transition) !important;
+        border: none !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+    }
+    
+    /* Metric Cards */
     .metric-card {
-        background-color: #f0f2f6;
-        padding: 20px;
-        border-radius: 10px;
-        margin: 10px 0;
+        background: var(--card-bg);
+        padding: 24px;
+        border-radius: var(--border-radius);
+        margin: 12px 0;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        border: 1px solid rgba(0,0,0,0.05);
     }
+    
+    .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--hover-shadow);
+    }
+    
+    /* Title Section */
     .title-section {
-        color: #1f77b4;
-        border-bottom: 2px solid #1f77b4;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
+        background: var(--primary-gradient);
+        color: white;
+        padding: 20px 30px;
+        border-radius: var(--border-radius);
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+        border: none;
     }
+    
+    .title-section h1, .title-section h2, .title-section h3 {
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    .title-section h1, .title-section h2, .title-section h3 {
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* ============================================
+       LOADING ANIMATIONS
+       ============================================ */
     .loading-container {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 60px 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 15px;
+        padding: 80px 20px;
+        background: var(--primary-gradient);
+        border-radius: var(--border-radius);
         margin: 40px 0;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        box-shadow: var(--card-shadow);
+        animation: fadeIn 0.5s ease-in;
     }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
     .loading-text {
         color: white;
-        font-size: 24px;
+        font-size: 28px;
         font-weight: bold;
-        margin-top: 20px;
+        margin-top: 25px;
         animation: pulse 1.5s ease-in-out infinite;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
+    
     .loading-subtext {
-        color: rgba(255,255,255,0.9);
+        color: rgba(255,255,255,0.95);
         font-size: 16px;
-        margin-top: 10px;
+        margin-top: 12px;
+        font-weight: 500;
     }
+    
     @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(0.98); }
     }
+    
     .spinner {
         border: 8px solid rgba(255,255,255,0.2);
         border-top: 8px solid white;
         border-radius: 50%;
-        width: 60px;
-        height: 60px;
+        width: 70px;
+        height: 70px;
         animation: spin 1s linear infinite;
+        box-shadow: 0 0 20px rgba(255,255,255,0.3);
     }
+    
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+    
+    /* ============================================
+       UPCOMING MATCHES BANNER
+       ============================================ */
+    /* ============================================
+       UPCOMING MATCHES BANNER
+       ============================================ */
     .upcoming-banner {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        padding: 15px 25px;
-        border-radius: 12px;
-        margin: 20px 0;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        background: var(--secondary-gradient);
+        padding: 20px 30px;
+        border-radius: var(--border-radius);
+        margin: 25px 0;
+        box-shadow: var(--card-shadow);
         display: flex;
         align-items: center;
         justify-content: space-between;
+        transition: var(--transition);
+        border: 2px solid rgba(255,255,255,0.2);
     }
+    
+    .upcoming-banner:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--hover-shadow);
+    }
+    
     .upcoming-banner-content {
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 25px;
         flex-wrap: wrap;
     }
+    
     .upcoming-match-item {
-        background: rgba(255,255,255,0.2);
-        padding: 8px 15px;
+        background: rgba(255,255,255,0.25);
+        padding: 10px 18px;
         border-radius: 8px;
         backdrop-filter: blur(10px);
         color: white;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 15px;
         white-space: nowrap;
+        border: 1px solid rgba(255,255,255,0.3);
+        transition: var(--transition);
     }
+    
+    .upcoming-match-item:hover {
+        background: rgba(255,255,255,0.35);
+        transform: scale(1.05);
+    }
+    
     .upcoming-banner-title {
         color: white;
-        font-size: 16px;
+        font-size: 18px;
         font-weight: bold;
-        margin-right: 15px;
+        margin-right: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
+    
     .upcoming-vs {
         color: white;
         font-weight: bold;
-        padding: 0 8px;
+        padding: 0 10px;
+        font-size: 16px;
     }
+    
+    /* ============================================
+       PLAYER CARDS & IMAGES
+       ============================================ */
     .player-image-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+        border-radius: var(--border-radius);
     }
+    
     .player-image-container img {
         display: block;
         margin-left: auto;
         margin-right: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        transition: var(--transition);
     }
+    
+    .player-image-container img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    .player-image-container img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    
+    /* Player Detail Header */
     .player-detail-header {
         display: flex;
         align-items: center;
-        gap: 30px;
-        padding: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 15px;
-        margin: 20px 0;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        gap: 35px;
+        padding: 30px;
+        background: var(--primary-gradient);
+        border-radius: var(--border-radius);
+        margin: 25px 0;
+        box-shadow: var(--card-shadow);
+        border: 2px solid rgba(255,255,255,0.2);
     }
+    
     .player-detail-image {
         flex-shrink: 0;
     }
+    
     .player-detail-image img {
-        width: 180px;
-        height: 180px;
+        width: 200px;
+        height: 200px;
         object-fit: cover;
-        border-radius: 12px;
+        border-radius: var(--border-radius);
         border: 4px solid white;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        transition: var(--transition);
     }
+    
+    .player-detail-image img:hover {
+        transform: scale(1.05) rotate(2deg);
+    }
+    
     .player-detail-info {
         flex-grow: 1;
         color: white;
     }
+    
     .player-detail-name {
-        font-size: 36px;
+        font-size: 42px;
         font-weight: bold;
-        margin-bottom: 10px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-    .player-detail-meta {
-        display: flex;
-        gap: 30px;
-        margin-top: 15px;
-    }
-    .player-detail-stat {
-        background: rgba(255,255,255,0.2);
-        padding: 12px 20px;
-        border-radius: 8px;
-        backdrop-filter: blur(10px);
-    }
-    .player-detail-stat-label {
-        font-size: 12px;
-        opacity: 0.9;
-        text-transform: uppercase;
+        margin-bottom: 15px;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
         letter-spacing: 1px;
     }
-    .player-detail-stat-value {
-        font-size: 24px;
-        font-weight: bold;
-        margin-top: 5px;
+    
+    .player-detail-meta {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+        flex-wrap: wrap;
     }
+    
+    .player-detail-stat {
+        background: rgba(255,255,255,0.25);
+        padding: 15px 25px;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.3);
+        transition: var(--transition);
+        min-width: 120px;
+    }
+    
+    .player-detail-stat:hover {
+        background: rgba(255,255,255,0.35);
+        transform: translateY(-2px);
+    }
+    
+    .player-detail-stat-label {
+        font-size: 13px;
+        opacity: 0.95;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+    }
+    
+    .player-detail-stat-value {
+        font-size: 28px;
+        font-weight: bold;
+        margin-top: 8px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* ============================================
+       BETTING SLIP STYLES
+       ============================================ */
+    /* ============================================
+       BETTING SLIP STYLES
+       ============================================ */
     .pick-hit {
         color: #28a745;
         font-weight: bold;
-        padding: 4px 8px;
-        border-radius: 4px;
-        background: rgba(40, 167, 69, 0.1);
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.05) 100%);
+        border: 2px solid rgba(40, 167, 69, 0.3);
+        display: inline-block;
+        transition: var(--transition);
     }
+    
+    .pick-hit:hover {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.25) 0%, rgba(40, 167, 69, 0.15) 100%);
+        transform: scale(1.05);
+    }
+    
     .pick-chalked {
         color: #dc3545;
         font-weight: bold;
-        padding: 4px 8px;
-        border-radius: 4px;
-        background: rgba(220, 53, 69, 0.1);
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.05) 100%);
+        border: 2px solid rgba(220, 53, 69, 0.3);
+        display: inline-block;
+        transition: var(--transition);
     }
+    
+    .pick-chalked:hover {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.25) 0%, rgba(220, 53, 69, 0.15) 100%);
+        transform: scale(1.05);
+    }
+    
     .pick-pending {
         color: #6c757d;
         font-weight: bold;
-        padding: 4px 8px;
-        border-radius: 4px;
-        background: rgba(108, 117, 125, 0.1);
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(108, 117, 125, 0.15) 0%, rgba(108, 117, 125, 0.05) 100%);
+        border: 2px solid rgba(108, 117, 125, 0.3);
+        display: inline-block;
+        transition: var(--transition);
+    }
+    
+    .pick-pending:hover {
+        background: linear-gradient(135deg, rgba(108, 117, 125, 0.25) 0%, rgba(108, 117, 125, 0.15) 100%);
+        transform: scale(1.05);
+    }
+    
+    /* ============================================
+       DATA TABLES ENHANCEMENT
+       ============================================ */
+    .dataframe {
+        border-radius: var(--border-radius) !important;
+        overflow: hidden !important;
+        box-shadow: var(--card-shadow) !important;
+        border: 1px solid rgba(0,0,0,0.05) !important;
+    }
+    
+    .dataframe thead tr th {
+        background: var(--primary-gradient) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        padding: 12px !important;
+        font-size: 13px !important;
+    }
+    
+    .dataframe tbody tr {
+        transition: var(--transition) !important;
+    }
+    
+    .dataframe tbody tr:nth-child(even) {
+        background-color: rgba(102,126,234,0.03) !important;
+    }
+    
+    .dataframe tbody tr:hover {
+        background-color: rgba(102,126,234,0.08) !important;
+        transform: scale(1.01) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+    }
+    
+    .dataframe tbody tr td {
+        padding: 12px !important;
+        border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+    }
+    
+    /* ============================================
+       TABS & NAVIGATION ENHANCEMENT
+       ============================================ */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: transparent;
+        padding: 10px 0;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        background-color: white;
+        border-radius: var(--border-radius);
+        padding: 0 24px;
+        font-weight: 600;
+        font-size: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 2px solid transparent;
+        transition: var(--transition);
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: var(--primary-gradient) !important;
+        color: white !important;
+        border-color: rgba(255,255,255,0.3) !important;
+        box-shadow: 0 4px 15px rgba(102,126,234,0.4) !important;
+    }
+    
+    /* ============================================
+       SELECTBOX & INPUT ENHANCEMENT
+       ============================================ */
+    .stSelectbox > div > div {
+        border-radius: var(--border-radius) !important;
+        border: 2px solid rgba(102,126,234,0.2) !important;
+        transition: var(--transition) !important;
+    }
+    
+    .stSelectbox > div > div:hover {
+        border-color: rgba(102,126,234,0.5) !important;
+        box-shadow: 0 2px 8px rgba(102,126,234,0.1) !important;
+    }
+    
+    .stTextInput > div > div > input {
+        border-radius: var(--border-radius) !important;
+        border: 2px solid rgba(102,126,234,0.2) !important;
+        transition: var(--transition) !important;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: rgba(102,126,234,0.6) !important;
+        box-shadow: 0 0 0 3px rgba(102,126,234,0.1) !important;
+    }
+    
+    /* ============================================
+       METRIC WIDGET ENHANCEMENT
+       ============================================ */
+    [data-testid="stMetricValue"] {
+        font-size: 32px !important;
+        font-weight: bold !important;
+        color: #667eea !important;
+    }
+    
+    [data-testid="stMetricLabel"] {
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        color: #6c757d !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    [data-testid="stMetricDelta"] {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* ============================================
+       RESPONSIVE DESIGN
+       ============================================ */
+    @media (max-width: 768px) {
+        .player-detail-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .player-detail-meta {
+            justify-content: center;
+        }
+        
+        .player-detail-name {
+            font-size: 32px;
+        }
+        
+        .upcoming-banner {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .upcoming-banner-content {
+            justify-content: center;
+        }
+    }
+    
+    /* ============================================
+       SIDEBAR ENHANCEMENT
+       ============================================ */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+        border-right: 2px solid rgba(102,126,234,0.1);
+    }
+    
+    [data-testid="stSidebar"] .stButton > button {
+        width: 100%;
+    }
+    
+    /* ============================================
+       EXPANDER ENHANCEMENT
+       ============================================ */
+    .streamlit-expanderHeader {
+        background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        padding: 12px 16px;
+        transition: var(--transition);
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+    }
+    
+    /* ============================================
+       DIVIDER ENHANCEMENT
+       ============================================ */
+    hr {
+        margin: 30px 0;
+        border: none;
+        height: 2px;
+        background: linear-gradient(to right, transparent, rgba(102,126,234,0.3), transparent);
+    }
+    
+    /* ============================================
+       CARD CONTAINER ENHANCEMENT
+       ============================================ */
+    .card-container {
+        background: white;
+        padding: 25px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin: 15px 0;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: var(--transition);
+    }
+    
+    .card-container:hover {
+        box-shadow: var(--hover-shadow);
+        transform: translateY(-2px);
+    }
+    
+    /* ============================================
+       SUCCESS/ERROR MESSAGE ENHANCEMENT
+       ============================================ */
+    .stSuccess {
+        background: var(--success-gradient) !important;
+        color: white !important;
+        border-radius: var(--border-radius) !important;
+        padding: 16px 20px !important;
+        border: none !important;
+        box-shadow: var(--card-shadow) !important;
+    }
+    
+    .stError {
+        background: var(--danger-gradient) !important;
+        color: white !important;
+        border-radius: var(--border-radius) !important;
+        padding: 16px 20px !important;
+        border: none !important;
+        box-shadow: var(--card-shadow) !important;
+    }
+    
+    .stInfo {
+        background: var(--info-gradient) !important;
+        color: white !important;
+        border-radius: var(--border-radius) !important;
+        padding: 16px 20px !important;
+        border: none !important;
+        box-shadow: var(--card-shadow) !important;
+    }
+    
+    .stWarning {
+        background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%) !important;
+        color: #333 !important;
+        border-radius: var(--border-radius) !important;
+        padding: 16px 20px !important;
+        border: none !important;
+        box-shadow: var(--card-shadow) !important;
+        font-weight: 600 !important;
     }
     </style>
     """, unsafe_allow_html=True)# ============================================================================
@@ -2692,7 +3122,7 @@ def page_slip_creator():
         st.session_state.selected_match_id = None
     
     # Try to load betting lines and upcoming matches
-    from database import load_betting_lines, save_slip
+    from database import load_betting_lines, save_slip, save_betting_lines
     from scrape_breakingpoint import fetch_upcoming_matches
     
     # Sidebar for current slip
@@ -2733,24 +3163,33 @@ def page_slip_creator():
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("💾 Save Slip", use_container_width=True):
-                    slip_name = f"Slip {datetime.now().strftime('%m/%d %I:%M%p')}"
-                    slip_data = {
-                        'slip_name': slip_name,
-                        'stake': stake,
-                        'potential_payout': potential_payout
-                    }
-                    picks_to_save = [
-                        {'betting_line_id': p['line_id'], 'pick_type': p['pick_type']}
-                        for p in st.session_state.slip_picks
-                    ]
-                    
-                    slip_id = save_slip(slip_data, picks_to_save)
-                    if slip_id:
-                        st.success(f"✅ Slip saved! ID: {slip_id}")
-                        st.session_state.slip_picks = []
-                        st.rerun()
+                    if not DATABASE_AVAILABLE:
+                        st.error("❌ Database not available. Cannot save slip.")
                     else:
-                        st.warning("⚠️ Could not save slip (database unavailable)")
+                        slip_name = f"Slip {datetime.now().strftime('%m/%d %I:%M%p')}"
+                        slip_data = {
+                            'slip_name': slip_name,
+                            'stake': stake,
+                            'potential_payout': potential_payout
+                        }
+                        picks_to_save = [
+                            {'betting_line_id': p['line_id'], 'pick_type': p['pick_type']}
+                            for p in st.session_state.slip_picks
+                        ]
+                        
+                        try:
+                            slip_id = save_slip(slip_data, picks_to_save)
+                            if slip_id:
+                                st.success(f"✅ Slip saved! ID: {slip_id}")
+                                st.balloons()
+                                # Clear picks after successful save
+                                st.session_state.slip_picks = []
+                                time.sleep(1)
+                                st.rerun()
+                            else:
+                                st.error("❌ Could not save slip. Please check database connection.")
+                        except Exception as e:
+                            st.error(f"❌ Error saving slip: {e}")
             
             with col2:
                 if st.button("🗑️ Clear Slip", use_container_width=True):
@@ -2847,6 +3286,18 @@ def page_slip_creator():
                         line_id += 1
         
         betting_lines_df = pd.DataFrame(mock_data)
+        
+        # Save mock betting lines to database for demo mode (so they can be referenced in slips)
+        # Only save if lines don't already exist in database
+        if DATABASE_AVAILABLE:
+            try:
+                existing_lines = load_betting_lines()
+                if existing_lines is None or existing_lines.empty:
+                    # Save demo lines to database
+                    save_betting_lines(betting_lines_df)
+                    st.caption("✅ Demo betting lines loaded into database")
+            except Exception as e:
+                st.caption(f"⚠️ Could not save demo lines to database: {e}")
     
     if upcoming_df is None or upcoming_df.empty:
         st.warning("⚠️ No upcoming matches found. Check back later!")
@@ -2936,7 +3387,7 @@ def page_slip_creator():
             with col3:
                 pick_col1, pick_col2 = st.columns(2)
                 with pick_col1:
-                    if st.button("� Over", key=f"over_{row['id']}"):
+                    if st.button("�� Over", key=f"over_{row['id']}", use_container_width=True):
                         pick = {
                             'line_id': row['id'],
                             'player_name': row['player_name'],
@@ -2946,11 +3397,16 @@ def page_slip_creator():
                             'map_scope': row['map_scope'],
                             'pick_type': 'over'
                         }
-                        st.session_state.slip_picks.append(pick)
+                        # Check for duplicates before adding
+                        if not any(p['line_id'] == pick['line_id'] and p['pick_type'] == 'over' for p in st.session_state.slip_picks):
+                            st.session_state.slip_picks.append(pick)
+                            st.toast(f"✅ Added {row['player_name']} Over {row['line_value']}", icon="🔺")
+                        else:
+                            st.toast(f"⚠️ Already in slip!", icon="⚠️")
                         st.rerun()
                 
                 with pick_col2:
-                    if st.button("🔻 Under", key=f"under_{row['id']}"):
+                    if st.button("🔻 Under", key=f"under_{row['id']}", use_container_width=True):
                         pick = {
                             'line_id': row['id'],
                             'player_name': row['player_name'],
@@ -2960,12 +3416,51 @@ def page_slip_creator():
                             'map_scope': row['map_scope'],
                             'pick_type': 'under'
                         }
-                        st.session_state.slip_picks.append(pick)
+                        # Check for duplicates before adding
+                        if not any(p['line_id'] == pick['line_id'] and p['pick_type'] == 'under' for p in st.session_state.slip_picks):
+                            st.session_state.slip_picks.append(pick)
+                            st.toast(f"✅ Added {row['player_name']} Under {row['line_value']}", icon="🔻")
+                        else:
+                            st.toast(f"⚠️ Already in slip!", icon="⚠️")
                         st.rerun()
             
             st.divider()
     else:
         st.info("👆 Select a match above to view available player props")
+    
+    # Show recent saved slips at bottom
+    st.divider()
+    st.markdown("### 📋 Recent Saved Slips")
+    
+    from database import load_slips
+    recent_slips = load_slips()
+    
+    if recent_slips is not None and not recent_slips.empty:
+        # Show only last 5 slips
+        recent_slips = recent_slips.head(5)
+        
+        col1, col2, col3, col4 = st.columns(4)
+        col1.markdown("**Slip Name**")
+        col2.markdown("**Picks**")
+        col3.markdown("**Stake**")
+        col4.markdown("**Status**")
+        
+        for _, slip in recent_slips.iterrows():
+            col1, col2, col3, col4 = st.columns(4)
+            col1.text(slip['slip_name'])
+            col2.text(f"{slip['num_picks']} picks")
+            col3.text(f"${slip['stake']:.2f}")
+            
+            status_emoji = {
+                'pending': '⏳',
+                'won': '✅',
+                'lost': '❌',
+            }.get(slip['status'], '❓')
+            col4.text(f"{status_emoji} {slip['status'].title()}")
+        
+        st.caption("💡 View all slips in the **Slip Tracker** tab")
+    else:
+        st.info("No saved slips yet. Create and save your first slip above!")
 
 
 def page_slip_tracker():
