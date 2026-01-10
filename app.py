@@ -495,34 +495,48 @@ st.markdown("""
        TABS & NAVIGATION ENHANCEMENT
        ============================================ */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+        gap: 10px;
         background-color: transparent;
-        padding: 10px 0;
+        padding: 12px 0;
     }
     
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        background-color: white;
+        height: 58px;
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
         border-radius: var(--border-radius);
-        padding: 0 24px;
+        padding: 0 28px;
         font-weight: 600;
-        font-size: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        border: 2px solid transparent;
+        font-size: 16px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        border: 2px solid rgba(255,255,255,0.1);
         transition: var(--transition);
+        color: rgba(255,255,255,0.9) !important;
     }
     
     .stTabs [data-baseweb="tab"]:hover {
-        background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        background: linear-gradient(135deg, #34495e 0%, #415a77 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        border-color: rgba(102,126,234,0.4);
     }
     
     .stTabs [aria-selected="true"] {
         background: var(--primary-gradient) !important;
         color: white !important;
-        border-color: rgba(255,255,255,0.3) !important;
-        box-shadow: 0 4px 15px rgba(102,126,234,0.4) !important;
+        border-color: rgba(255,255,255,0.4) !important;
+        box-shadow: 0 6px 20px rgba(102,126,234,0.6) !important;
+        transform: translateY(-2px) !important;
+    }
+    
+    /* Tab emoji/icon styling for better visibility */
+    .stTabs [data-baseweb="tab"] span {
+        filter: contrast(1.3) brightness(1.2) drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+        font-size: 20px;
+    }
+    
+    .stTabs [aria-selected="true"] span {
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)) brightness(1.3);
+        font-size: 22px;
     }
     
     /* ============================================
@@ -1389,11 +1403,25 @@ def calculate_map_scores_cached(df_hash, player_name, match_ids_tuple, map_numbe
 def page_player_detail(player_name):
     """Display detailed player dashboard with granular match history."""
     
-    # Back button
-    if st.button("← Back to Player Overview"):
-        if 'current_player' in st.session_state:
-            del st.session_state.current_player
-        st.rerun()
+    # Add sidebar navigation helper
+    with st.sidebar:
+        st.markdown("---")
+        st.markdown("### 🔙 Navigation")
+        if st.button("⬅️ Return to Player Overview", use_container_width=True, key="sidebar_back"):
+            if 'current_player' in st.session_state:
+                del st.session_state.current_player
+            st.rerun()
+        st.markdown("---")
+    
+    # Prominent back button at the very top
+    col1, col2 = st.columns([1, 5])
+    with col1:
+        if st.button("⬅️ Back to Overview", use_container_width=True, type="primary", key="back_to_overview_top"):
+            if 'current_player' in st.session_state:
+                del st.session_state.current_player
+            st.rerun()
+    
+    st.markdown("---")
     
     filtered_df = render_sidebar_filters()
     player_df = filtered_df[filtered_df['player_name'] == player_name]
@@ -1658,14 +1686,29 @@ def page_player_detail(player_name):
 
 def page_team_detail(team_name):
     """Display detailed team dashboard with mode-specific analysis."""
+    
+    # Add sidebar navigation helper
+    with st.sidebar:
+        st.markdown("---")
+        st.markdown("### 🔙 Navigation")
+        if st.button("⬅️ Return to Player Overview", use_container_width=True, key="sidebar_back_team"):
+            if 'current_team' in st.session_state:
+                del st.session_state.current_team
+            st.rerun()
+        st.markdown("---")
+    
+    # Prominent back button at the top
+    col1, col2 = st.columns([1, 5])
+    with col1:
+        if st.button("⬅️ Back to Overview", use_container_width=True, type="primary", key="back_to_overview_team"):
+            if 'current_team' in st.session_state:
+                del st.session_state.current_team
+            st.rerun()
+    
+    st.markdown("---")
+    
     st.markdown(f'<div class="title-section"><h2>🏆 {team_name}</h2></div>', 
                 unsafe_allow_html=True)
-    
-    # Back button
-    if st.button("← Back to Player Overview"):
-        if 'current_team' in st.session_state:
-            del st.session_state.current_team
-        st.rerun()
     
     filtered_df = render_sidebar_filters()
     team_df = filtered_df[filtered_df['team_name'] == team_name]
